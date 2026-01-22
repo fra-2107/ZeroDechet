@@ -27,6 +27,7 @@ function connectWithRetry() {
       setTimeout(connectWithRetry, 2000); // retry toutes les 2 secondes
     } else {
       console.log('Connecté à MySQL !');
+      console.log('http://localhost:4200');
     }
   });
   
