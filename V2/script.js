@@ -1,105 +1,112 @@
-// Data loaded from JSON files
+// Data loaded from API (Database)
+const API_BASE_URL = 'http://localhost:3000';
+
 let mockEvents = [];
 let mockBeaches = [];
-let mockWasteBins = [];
 let leaderboardData = [];
-let dashboardStats = {};
-let challenges = [];
-let profileData = {};
 let badges = [];
-let historyStats = {};
-let statsData = {};
-let config = {};
+let config = { defaultCoordinates: [48.3733, -4.4180], defaultMapZoom: 12, defaultMapCenter: [48.3733, -4.4180] };
 
-// Load data from JSON files
+// Load data from API (Database)
 async function loadData() {
     try {
-        const [eventsRes, beachesRes, wasteBinsRes, leaderboardRes, dashboardStatsRes, challengesRes, profileRes, badgesRes, historyRes, statsRes, configRes] = await Promise.all([
-            fetch('data/events.json'),
-            fetch('data/beaches.json'),
-            fetch('data/wasteBins.json'),
-            fetch('data/leaderboard.json'),
-            fetch('data/dashboardStats.json'),
-            fetch('data/challenges.json'),
-            fetch('data/profileData.json'),
-            fetch('data/badges.json'),
-            fetch('data/historyStats.json'),
-            fetch('data/statsData.json'),
-            fetch('data/config.json')
-        ]);
-
-        // Check if all responses are ok
-        if (!eventsRes.ok) throw new Error('Failed to load events.json');
-        if (!beachesRes.ok) throw new Error('Failed to load beaches.json');
-        if (!wasteBinsRes.ok) throw new Error('Failed to load wasteBins.json');
-        if (!leaderboardRes.ok) throw new Error('Failed to load leaderboard.json');
-        if (!dashboardStatsRes.ok) throw new Error('Failed to load dashboardStats.json');
-        if (!challengesRes.ok) throw new Error('Failed to load challenges.json');
-        if (!profileRes.ok) throw new Error('Failed to load profileData.json');
-        if (!badgesRes.ok) throw new Error('Failed to load badges.json');
-        if (!historyRes.ok) throw new Error('Failed to load historyStats.json');
-        if (!statsRes.ok) throw new Error('Failed to load statsData.json');
-        if (!configRes.ok) throw new Error('Failed to load config.json');
-
-        mockEvents = await eventsRes.json();
-        mockBeaches = await beachesRes.json();
-        mockWasteBins = await wasteBinsRes.json();
-        leaderboardData = await leaderboardRes.json();
-        dashboardStats = await dashboardStatsRes.json();
-        challenges = await challengesRes.json();
-        profileData = await profileRes.json();
-        badges = await badgesRes.json();
-        historyStats = await historyRes.json();
-        statsData = await statsRes.json();
-        config = await configRes.json();
+        console.log('Loading data from API...');
         
-        // Load custom events from localStorage and merge with JSON events
-        const customEvents = loadCustomEvents();
-        if (customEvents && customEvents.length > 0) {
-            // Merge custom events with JSON events
-            const existingIds = new Set(mockEvents.map(e => e.id));
-            customEvents.forEach(event => {
-                const existingIndex = mockEvents.findIndex(e => e.id === event.id);
-                if (existingIndex !== -1) {
-                    // Update existing event (e.g., participant count)
-                    mockEvents[existingIndex] = { ...mockEvents[existingIndex], ...event };
-                } else if (!existingIds.has(event.id)) {
-                    // Add new custom event
-                    mockEvents.push(event);
-                }
-            });
-            // Sort events by date
-            mockEvents.sort((a, b) => new Date(a.date) - new Date(b.date));
+        // Load events from API
+        const eventsRes = await fetch(`${API_BASE_URL}/events`);
+        if (eventsRes.ok) {
+            mockEvents = await eventsRes.json();
+            console.log('Events loaded:', mockEvents.length);
+            console.log('Events data:', mockEvents);
+            if (mockEvents.length === 0) {
+                console.warn('No events returned from API');
+            }
+        } else {
+            console.warn('Failed to load events from API, status:', eventsRes.status);
+            mockEvents = [];
         }
         
-        console.log('Data loaded successfully', {
+        // Load beaches from API
+        const beachesRes = await fetch(`${API_BASE_URL}/beaches`);
+        if (beachesRes.ok) {
+            mockBeaches = await beachesRes.json();
+            console.log('Beaches loaded:', mockBeaches.length);
+        } else {
+            console.warn('Failed to load beaches from API');
+            mockBeaches = [];
+        }
+        
+        // Load leaderboard from API
+        const leaderboardRes = await fetch(`${API_BASE_URL}/leaderboard`);
+        if (leaderboardRes.ok) {
+            leaderboardData = await leaderboardRes.json();
+            console.log('Leaderboard loaded:', leaderboardData.length);
+        } else {
+            console.warn('Failed to load leaderboard from API');
+            leaderboardData = [];
+        }
+        
+        // Load badges from API
+        const badgesRes = await fetch(`${API_BASE_URL}/badges`);
+        if (badgesRes.ok) {
+            badges = await badgesRes.json();
+            console.log('Badges loaded:', badges.length);
+        } else {
+            console.warn('Failed to load badges from API');
+            badges = [];
+        }
+        
+        // Load custom events from localStorage and merge with API events
+        // NOTE: Commented out to only use events from database
+        // const customEvents = loadCustomEvents();
+        // if (customEvents && customEvents.length > 0) {
+        //     // Merge custom events with API events
+        //     const existingIds = new Set(mockEvents.map(e => e.id));
+        //     customEvents.forEach(event => {
+        //         const existingIndex = mockEvents.findIndex(e => e.id === event.id);
+        //         if (existingIndex !== -1) {
+        //             // Update existing event (e.g., participant count)
+        //             mockEvents[existingIndex] = { ...mockEvents[existingIndex], ...event };
+        //         } else if (!existingIds.has(event.id)) {
+        //             // Add new custom event
+        //             mockEvents.push(event);
+        //         }
+        //     });
+        //     // Sort events by date
+        //     mockEvents.sort((a, b) => new Date(a.date) - new Date(b.date));
+        // }
+        
+        // Data initialized (no additional tables needed)
+        
+        console.log('Data loaded successfully from API', {
             events: mockEvents.length,
             beaches: mockBeaches.length,
-            wasteBins: mockWasteBins.length,
             leaderboard: leaderboardData.length,
-            customEvents: customEvents ? customEvents.length : 0
+            badges: badges.length
         });
+        
+        // Log first event and beach for debugging
+        if (mockEvents.length > 0) {
+            console.log('First event sample:', JSON.stringify(mockEvents[0], null, 2));
+        }
+        if (mockBeaches.length > 0) {
+            console.log('First beach sample:', JSON.stringify(mockBeaches[0], null, 2));
+        }
     } catch (error) {
-        console.error('Error loading data:', error);
-        console.error('Error details:', error.message, error.stack);
+        console.error('Error loading data from API:', error);
+        console.error('Error details:', error.message);
         // Initialize with empty data to prevent crashes
         mockEvents = [];
         mockBeaches = [];
-        mockWasteBins = [];
         leaderboardData = [];
-        dashboardStats = {};
-        challenges = [];
-        profileData = {};
         badges = [];
-        historyStats = {};
-        statsData = {};
-        config = { defaultCoordinates: [48.3733, -4.4180], defaultMapZoom: 12, defaultMapCenter: [48.3733, -4.4180] };
         
-        // Try to load custom events from localStorage even if JSON fails
-        const customEvents = loadCustomEvents();
-        if (customEvents && customEvents.length > 0) {
-            mockEvents = customEvents;
-        }
+        // Try to load custom events from localStorage even if API fails
+        // NOTE: Commented out to only use events from database
+        // const customEvents = loadCustomEvents();
+        // if (customEvents && customEvents.length > 0) {
+        //     mockEvents = customEvents;
+        // }
     }
 }
 
@@ -151,25 +158,16 @@ function loadCustomEvents() {
     return [];
 }
 
-// Export events to JSON file (download)
-function exportEventsToJSON() {
+// Clear custom events from localStorage (useful for debugging)
+function clearCustomEvents() {
     try {
-        const dataStr = JSON.stringify(mockEvents, null, 2);
-        const dataBlob = new Blob([dataStr], { type: 'application/json' });
-        const url = URL.createObjectURL(dataBlob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = 'events.json';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-        console.log('Events exported to JSON file');
+        localStorage.removeItem('customEvents');
+        console.log('Custom events cleared from localStorage');
     } catch (error) {
-        console.error('Error exporting events:', error);
-        alert('Erreur lors de l\'export des événements');
+        console.error('Error clearing custom events:', error);
     }
 }
+
 
 // Authentication functions
 function isLoggedIn() {
@@ -258,10 +256,9 @@ function showPage(pageName) {
                     if (pageName === 'dashboard') {
                         renderUpcomingEvents();
                         renderDashboardStats();
-                        renderChallenges();
                     } else if (pageName === 'map') {
                     // Reset filter buttons opacity
-                    const filterButtons = ['filterEvents', 'filterBeaches', 'filterBins'];
+                    const filterButtons = ['filterEvents', 'filterBeaches'];
                     filterButtons.forEach(btnId => {
                         const btn = document.getElementById(btnId);
                         if (btn) {
@@ -269,8 +266,14 @@ function showPage(pageName) {
                         }
                     });
                     // Reset filters to default
-                    filters = { events: true, beaches: true, bins: true };
+                    filters = { events: true, beaches: true };
                     initMap();
+                    // Update map markers after a short delay to ensure data is loaded
+                    setTimeout(() => {
+                        if (map) {
+                            updateMapMarkers();
+                        }
+                    }, 500);
                 } else if (pageName === 'stats') {
                     renderLeaderboard();
                     renderStatsData();
@@ -321,11 +324,8 @@ function showPage(pageName) {
                             // Reset form
                             eventForm.reset();
                             
-                            // Show success message with option to export
-                            const exportConfirm = confirm('Événement créé avec succès !\n\nSouhaitez-vous télécharger le fichier events.json mis à jour ?');
-                            if (exportConfirm) {
-                                exportEventsToJSON();
-                            }
+                            // Show success message
+                            alert('Événement créé avec succès !');
                             
                             // Redirect to dashboard and refresh the events list
                             showPage('dashboard');
@@ -353,15 +353,67 @@ function showPage(pageName) {
 // Render upcoming events
 function renderUpcomingEvents() {
     const container = document.getElementById('upcomingEvents');
-    if (!container) return;
+    if (!container) {
+        console.warn('Container upcomingEvents not found');
+        return;
+    }
+    
+    console.log('renderUpcomingEvents called with', mockEvents.length, 'events');
     
     if (!mockEvents || mockEvents.length === 0) {
+        console.warn('No events to display');
         container.innerHTML = '<p style="color: #6b6b6b;">Aucun événement à venir</p>';
         return;
     }
     
+    // Log all event statuses for debugging
+    const statusCounts = {};
+    mockEvents.forEach(e => {
+        statusCounts[e.status] = (statusCounts[e.status] || 0) + 1;
+    });
+    console.log('Event status breakdown:', statusCounts);
+    
     const upcoming = mockEvents.filter(e => e.status === 'upcoming');
-
+    console.log('Filtered upcoming events:', upcoming.length);
+    
+    if (upcoming.length === 0) {
+        console.warn('No upcoming events found. Showing all events instead.');
+        // Show all events if no upcoming events
+        const allEvents = mockEvents.slice(0, 5); // Show first 5 events
+        container.innerHTML = allEvents.map((event, index) => `
+        <div class="event-card">
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+                <h3 style="flex: 1;">${event.title || 'Sans titre'}</h3>
+                <span class="badge badge-green">
+                    ${event.type === 'beach' ? 'Plage' : event.type === 'coastal' ? 'Cotier' : event.type === 'underwater' ? 'Plongee' : 'Autre'}
+                </span>
+            </div>
+            <p style="color: #6b6b6b; font-size: 0.875rem; margin-bottom: 0.5rem;">
+                Date: ${event.date ? new Date(event.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }) : 'Non spécifiée'}
+            </p>
+            <p style="color: #6b6b6b; font-size: 0.875rem; margin-bottom: 0.5rem;">
+                Lieu: ${event.location || 'Non spécifié'}
+            </p>
+            <p style="color: #6b6b6b; font-size: 0.875rem; margin-bottom: 1rem;">
+                ${event.participants || 0} participants inscrits
+            </p>
+            <p style="color: #6b6b6b; font-size: 0.75rem; margin-bottom: 1rem;">
+                Statut: ${event.status || 'inconnu'}
+            </p>
+            ${event.status === 'upcoming' ? '<button class="btn btn-primary register-event-btn" style="width: 100%;" data-event-id="' + event.id + '">S\'inscrire</button>' : ''}
+        </div>
+    `).join('');
+        
+        // Attach event listeners to register buttons
+        container.querySelectorAll('.register-event-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const eventId = this.getAttribute('data-event-id');
+                registerToEvent(eventId);
+            });
+        });
+        return;
+    }
+    
     container.innerHTML = upcoming.map((event, index) => `
         <div class="event-card">
             <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
@@ -492,83 +544,129 @@ function renderHistory() {
 }
 
 // Render dashboard stats
-function renderDashboardStats() {
-    if (Object.keys(dashboardStats).length === 0) return;
-    
-    const wasteEl = document.getElementById('dashboardWaste');
-    const wasteMonthEl = document.getElementById('dashboardWasteMonth');
-    const eventsEl = document.getElementById('dashboardEvents');
-    const upcomingEl = document.getElementById('dashboardUpcoming');
-    const participantsEl = document.getElementById('dashboardParticipants');
-    const beachesEl = document.getElementById('dashboardBeaches');
-    
-    if (wasteEl) wasteEl.textContent = dashboardStats.wasteCollected + ' kg';
-    if (wasteMonthEl) wasteMonthEl.textContent = '+' + dashboardStats.wasteCollectedThisMonth + 'kg ce mois';
-    if (eventsEl) eventsEl.textContent = dashboardStats.events;
-    if (upcomingEl) upcomingEl.textContent = dashboardStats.upcomingEvents + ' a venir';
-    if (participantsEl) participantsEl.textContent = dashboardStats.participants;
-    if (beachesEl) beachesEl.textContent = dashboardStats.beachesCleaned;
-}
-
-// Render challenges
-function renderChallenges() {
-    if (challenges.length === 0) return;
-    
-    if (challenges[0]) {
-        const progress1 = (challenges[0].current / challenges[0].target) * 100;
-        const progressEl1 = document.getElementById('challenge1Progress');
-        const barEl1 = document.getElementById('challenge1Bar');
-        const deadlineEl1 = document.getElementById('challenge1Deadline');
+async function renderDashboardStats() {
+    // Try to fetch data from API first, fallback to JSON if API is not available
+    try {
+        const apiBaseUrl = 'http://localhost:3000';
         
-        if (progressEl1) progressEl1.textContent = challenges[0].current + ' / ' + challenges[0].target;
-        if (barEl1) barEl1.style.width = progress1 + '%';
-        if (deadlineEl1) deadlineEl1.textContent = 'Date limite: ' + new Date(challenges[0].deadline).toLocaleDateString('fr-FR');
-    }
-    
-    if (challenges[1]) {
-        const progress2 = (challenges[1].current / challenges[1].target) * 100;
-        const progressEl2 = document.getElementById('challenge2Progress');
-        const barEl2 = document.getElementById('challenge2Bar');
-        const deadlineEl2 = document.getElementById('challenge2Deadline');
+        // Fetch number of users (participants)
+        const nbUsersRes = await fetch(`${apiBaseUrl}/nb_users`);
+        if (nbUsersRes.ok) {
+            const nbUsersData = await nbUsersRes.json();
+            const participantsEl = document.getElementById('dashboardParticipants');
+            if (participantsEl) participantsEl.textContent = nbUsersData.count || 0;
+        }
         
-        if (progressEl2) progressEl2.textContent = challenges[1].current + ' / ' + challenges[1].target;
-        if (barEl2) barEl2.style.width = progress2 + '%';
-        if (deadlineEl2) deadlineEl2.textContent = 'Date limite: ' + new Date(challenges[1].deadline).toLocaleDateString('fr-FR');
+        // Fetch number of events
+        const nbEventsRes = await fetch(`${apiBaseUrl}/nb_events`);
+        if (nbEventsRes.ok) {
+            const nbEventsData = await nbEventsRes.json();
+            const eventsEl = document.getElementById('dashboardEvents');
+            if (eventsEl) eventsEl.textContent = nbEventsData.count || 0;
+        }
+        
+        // Fetch number of upcoming events
+        const nbUpcomingRes = await fetch(`${apiBaseUrl}/nb_events_upcoming`);
+        if (nbUpcomingRes.ok) {
+            const nbUpcomingData = await nbUpcomingRes.json();
+            const upcomingEl = document.getElementById('dashboardUpcoming');
+            if (upcomingEl) upcomingEl.textContent = (nbUpcomingData.count || 0) + ' a venir';
+        }
+        
+        // Fetch total waste
+        const totalWasteRes = await fetch(`${apiBaseUrl}/total_waste`);
+        if (totalWasteRes.ok) {
+            const totalWasteData = await totalWasteRes.json();
+            const wasteEl = document.getElementById('dashboardWaste');
+            if (wasteEl) wasteEl.textContent = (totalWasteData.total || 0) + ' kg';
+        }
+        
+        // Fetch number of cleaned beaches
+        const nbBeachesRes = await fetch(`${apiBaseUrl}/nb_beaches_cleaned`);
+        if (nbBeachesRes.ok) {
+            const nbBeachesData = await nbBeachesRes.json();
+            const beachesEl = document.getElementById('dashboardBeaches');
+            if (beachesEl) beachesEl.textContent = nbBeachesData.count || 0;
+        }
+        
+    } catch (error) {
+        console.error('Error loading dashboard stats from API:', error);
+        // Show error or default values
+        const participantsEl = document.getElementById('dashboardParticipants');
+        const eventsEl = document.getElementById('dashboardEvents');
+        const wasteEl = document.getElementById('dashboardWaste');
+        const beachesEl = document.getElementById('dashboardBeaches');
+        
+        if (participantsEl) participantsEl.textContent = '0';
+        if (eventsEl) eventsEl.textContent = '0';
+        if (wasteEl) wasteEl.textContent = '0 kg';
+        if (beachesEl) beachesEl.textContent = '0';
     }
 }
 
-// Render history stats
-function renderHistoryStats() {
-    if (Object.keys(historyStats).length === 0) return;
-    
-    const eventsEl = document.getElementById('historyEventsCount');
-    const wasteEl = document.getElementById('historyWaste');
-    const coParticipantsEl = document.getElementById('historyCoParticipants');
-    
-    if (eventsEl) eventsEl.textContent = historyStats.eventsParticipated;
-    if (wasteEl) wasteEl.textContent = historyStats.wasteCollected + ' kg';
-    if (coParticipantsEl) coParticipantsEl.textContent = historyStats.coParticipants;
+
+// Render history stats (calculated from events)
+async function renderHistoryStats() {
+    try {
+        // Calculate from completed events
+        const completedEvents = mockEvents.filter(e => e.status === 'completed');
+        const totalWaste = completedEvents.reduce((sum, e) => sum + (e.wasteCollected || 0), 0);
+        const totalParticipants = completedEvents.reduce((sum, e) => sum + (e.participants || 0), 0);
+        
+        const eventsEl = document.getElementById('historyEventsCount');
+        const wasteEl = document.getElementById('historyWaste');
+        const coParticipantsEl = document.getElementById('historyCoParticipants');
+        
+        if (eventsEl) eventsEl.textContent = completedEvents.length;
+        if (wasteEl) wasteEl.textContent = totalWaste + ' kg';
+        if (coParticipantsEl) coParticipantsEl.textContent = totalParticipants;
+    } catch (error) {
+        console.error('Error rendering history stats:', error);
+    }
 }
 
-// Render stats data
-function renderStatsData() {
-    if (Object.keys(statsData).length === 0) return;
-    
-    const totalWasteEl = document.getElementById('statsTotalWaste');
-    const totalEventsEl = document.getElementById('statsTotalEvents');
-    const totalParticipantsEl = document.getElementById('statsTotalParticipants');
-    const beachesEl = document.getElementById('statsBeachesCleaned');
-    const avgWasteEl = document.getElementById('statsAvgWaste');
-    const avgParticipantsEl = document.getElementById('statsAvgParticipants');
-    const avgIndividualEl = document.getElementById('statsAvgIndividual');
-    
-    if (totalWasteEl) totalWasteEl.textContent = statsData.totalWaste + ' kg';
-    if (totalEventsEl) totalEventsEl.textContent = statsData.totalEvents;
-    if (totalParticipantsEl) totalParticipantsEl.textContent = statsData.totalParticipants;
-    if (beachesEl) beachesEl.textContent = statsData.beachesCleaned;
-    if (avgWasteEl) avgWasteEl.textContent = statsData.averageWastePerEvent + ' kg';
-    if (avgParticipantsEl) avgParticipantsEl.textContent = statsData.averageParticipantsPerEvent;
-    if (avgIndividualEl) avgIndividualEl.textContent = statsData.averageWastePerParticipant + ' kg';
+// Render stats data (from API)
+async function renderStatsData() {
+    try {
+        const apiBaseUrl = API_BASE_URL;
+        
+        // Fetch all stats from API
+        const [totalWasteRes, totalEventsRes, nbUsersRes, nbBeachesRes] = await Promise.all([
+            fetch(`${apiBaseUrl}/total_waste`),
+            fetch(`${apiBaseUrl}/nb_events`),
+            fetch(`${apiBaseUrl}/nb_users`),
+            fetch(`${apiBaseUrl}/nb_beaches_cleaned`)
+        ]);
+        
+        const totalWaste = totalWasteRes.ok ? (await totalWasteRes.json()).total : 0;
+        const totalEvents = totalEventsRes.ok ? (await totalEventsRes.json()).count : 0;
+        const totalParticipants = nbUsersRes.ok ? (await nbUsersRes.json()).count : 0;
+        const beachesCleaned = nbBeachesRes.ok ? (await nbBeachesRes.json()).count : 0;
+        
+        // Calculate averages
+        const avgWaste = totalEvents > 0 ? Math.round(totalWaste / totalEvents) : 0;
+        const totalParticipantsCount = mockEvents.reduce((sum, e) => sum + (e.participants || 0), 0);
+        const avgParticipants = totalEvents > 0 ? Math.round(totalParticipantsCount / totalEvents) : 0;
+        const avgIndividual = totalParticipantsCount > 0 ? (totalWaste / totalParticipantsCount).toFixed(1) : 0;
+        
+        const totalWasteEl = document.getElementById('statsTotalWaste');
+        const totalEventsEl = document.getElementById('statsTotalEvents');
+        const totalParticipantsEl = document.getElementById('statsTotalParticipants');
+        const beachesEl = document.getElementById('statsBeachesCleaned');
+        const avgWasteEl = document.getElementById('statsAvgWaste');
+        const avgParticipantsEl = document.getElementById('statsAvgParticipants');
+        const avgIndividualEl = document.getElementById('statsAvgIndividual');
+        
+        if (totalWasteEl) totalWasteEl.textContent = totalWaste + ' kg';
+        if (totalEventsEl) totalEventsEl.textContent = totalEvents;
+        if (totalParticipantsEl) totalParticipantsEl.textContent = totalParticipants;
+        if (beachesEl) beachesEl.textContent = beachesCleaned;
+        if (avgWasteEl) avgWasteEl.textContent = avgWaste + ' kg';
+        if (avgParticipantsEl) avgParticipantsEl.textContent = avgParticipants;
+        if (avgIndividualEl) avgIndividualEl.textContent = avgIndividual + ' kg';
+    } catch (error) {
+        console.error('Error rendering stats data:', error);
+    }
 }
 
 // Render profile data
@@ -669,8 +767,8 @@ function renderProfileData() {
 
 // Map functionality
 let map;
-let markers = { events: [], beaches: [], bins: [] };
-let filters = { events: true, beaches: true, bins: true };
+let markers = { events: [], beaches: [] };
+let filters = { events: true, beaches: true };
 
 function initMap() {
     // Check if map container exists
@@ -680,12 +778,12 @@ function initMap() {
         return;
     }
 
-    // Destroy existing map if it exists
-    if (map) {
-        map.remove();
-        map = null;
-        markers = { events: [], beaches: [], bins: [] };
-    }
+        // Destroy existing map if it exists
+        if (map) {
+            map.remove();
+            map = null;
+            markers = { events: [], beaches: [] };
+        }
 
     // Wait a bit for the DOM to be ready
     setTimeout(() => {
@@ -709,6 +807,7 @@ function initMap() {
             if (map) {
                 map.invalidateSize();
                 updateMapMarkers();
+                console.log('Map initialized with', mockEvents.length, 'events and', mockBeaches.length, 'beaches');
             }
         }, 100);
     }, 50);
@@ -725,17 +824,29 @@ function toggleFilter(type) {
 }
 
 function updateMapMarkers() {
-    if (!map) return;
+    if (!map) {
+        console.warn('Map not initialized, cannot update markers');
+        return;
+    }
+
+    console.log('Updating map markers with', mockEvents.length, 'events and', mockBeaches.length, 'beaches');
 
     // Clear existing markers
     Object.values(markers).forEach(group => {
         group.forEach(marker => map.removeLayer(marker));
     });
-    markers = { events: [], beaches: [], bins: [] };
+    markers = { events: [], beaches: [] };
 
     // Add event markers
     if (filters.events) {
+        let eventsAdded = 0;
         mockEvents.forEach(event => {
+            // Vérifier que les coordonnées sont valides
+            if (!event.coordinates || !Array.isArray(event.coordinates) || event.coordinates.length !== 2) {
+                console.warn('Event without valid coordinates:', event);
+                return;
+            }
+            
             const marker = L.marker(event.coordinates, {
                 icon: L.icon({
                     iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
@@ -748,20 +859,29 @@ function updateMapMarkers() {
 
             marker.bindPopup(`
                 <div style="padding: 0.5rem; min-width: 200px;">
-                    <h3 style="color: var(--ocean-blue); margin-bottom: 0.5rem;">${event.title}</h3>
-                    <p style="font-size: 0.875rem; margin-bottom: 0.25rem;">Date: ${new Date(event.date).toLocaleDateString('fr-FR')}</p>
-                    <p style="font-size: 0.875rem; margin-bottom: 0.25rem;">Lieu: ${event.location}</p>
-                    <p style="font-size: 0.875rem;">${event.participants} participants</p>
+                    <h3 style="color: var(--ocean-blue); margin-bottom: 0.5rem;">${event.title || 'Événement sans titre'}</h3>
+                    <p style="font-size: 0.875rem; margin-bottom: 0.25rem;">Date: ${event.date ? new Date(event.date).toLocaleDateString('fr-FR') : 'Non spécifiée'}</p>
+                    <p style="font-size: 0.875rem; margin-bottom: 0.25rem;">Lieu: ${event.location || 'Non spécifié'}</p>
+                    <p style="font-size: 0.875rem;">${event.participants || 0} participants</p>
                 </div>
             `);
 
             markers.events.push(marker);
+            eventsAdded++;
         });
+        console.log(`Added ${eventsAdded} event markers to map`);
     }
 
     // Add beach markers
     if (filters.beaches) {
+        let beachesAdded = 0;
         mockBeaches.forEach(beach => {
+            // Vérifier que les coordonnées sont valides
+            if (!beach.coordinates || !Array.isArray(beach.coordinates) || beach.coordinates.length !== 2) {
+                console.warn('Beach without valid coordinates:', beach);
+                return;
+            }
+            
             const color = beach.status === 'clean' ? '#3FA796' :
                         beach.status === 'needs-cleaning' ? '#FFB74D' : '#dc2626';
 
@@ -784,7 +904,7 @@ function updateMapMarkers() {
 
             marker.bindPopup(`
                 <div style="padding: 0.5rem; min-width: 200px;">
-                    <h3 style="color: var(--algae-green); margin-bottom: 0.5rem;">${beach.name}</h3>
+                    <h3 style="color: var(--algae-green); margin-bottom: 0.5rem;">${beach.name || 'Plage sans nom'}</h3>
                     <p style="font-size: 0.875rem;">
                         ${beach.status === 'clean' ? 'Propre' :
                           beach.status === 'needs-cleaning' ? 'A nettoyer' : 'Critique'}
@@ -793,33 +913,9 @@ function updateMapMarkers() {
             `);
 
             markers.beaches.push(marker);
+            beachesAdded++;
         });
-    }
-
-    // Add bin markers
-    if (filters.bins) {
-        mockWasteBins.forEach(bin => {
-            const marker = L.marker(bin.coordinates, {
-                icon: L.icon({
-                    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-orange.png',
-                    shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-                    iconSize: [25, 41],
-                    iconAnchor: [12, 41],
-                    popupAnchor: [1, -34]
-                })
-            }).addTo(map);
-
-            marker.bindPopup(`
-                <div style="padding: 0.5rem; min-width: 150px;">
-                    <h3 style="color: #FFB74D; margin-bottom: 0.5rem;">${bin.name}</h3>
-                    <p style="font-size: 0.875rem;">
-                        ${bin.type === 'recycling' ? 'Tri selectif' : 'General'}
-                    </p>
-                </div>
-            `);
-
-            markers.bins.push(marker);
-        });
+        console.log(`Added ${beachesAdded} beach markers to map`);
     }
 }
 
@@ -828,8 +924,8 @@ document.addEventListener('DOMContentLoaded', async function() {
     console.log('DOM loaded, initializing application...');
     
     try {
-        // Load data from JSON files
-        console.log('Loading data from JSON files...');
+        // Load data from API (Database)
+        console.log('Loading data from API...');
         await loadData();
         console.log('Data loaded, updating UI...');
         
