@@ -212,9 +212,14 @@
             // Simulate account creation and redirect after 2 seconds
             setTimeout(function() {
                 // Store registration info (in real app, this would be on server)
+                const fullName = firstName + ' ' + lastName;
                 localStorage.setItem('registeredEmail', email);
-                localStorage.setItem('registeredName', firstName + ' ' + lastName);
+                localStorage.setItem('registeredName', fullName);
                 localStorage.setItem('registeredPassword', password); // For demo only - never do this in production
+                
+                // Also store as userName for immediate use after login
+                localStorage.setItem('userName', fullName);
+                localStorage.setItem('userEmail', email);
                 
                 // Redirect to login page
                 window.location.href = 'login.html';

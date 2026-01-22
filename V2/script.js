@@ -53,11 +53,31 @@ async function loadData() {
         statsData = await statsRes.json();
         config = await configRes.json();
         
+        // Load custom events from localStorage and merge with JSON events
+        const customEvents = loadCustomEvents();
+        if (customEvents && customEvents.length > 0) {
+            // Merge custom events with JSON events
+            const existingIds = new Set(mockEvents.map(e => e.id));
+            customEvents.forEach(event => {
+                const existingIndex = mockEvents.findIndex(e => e.id === event.id);
+                if (existingIndex !== -1) {
+                    // Update existing event (e.g., participant count)
+                    mockEvents[existingIndex] = { ...mockEvents[existingIndex], ...event };
+                } else if (!existingIds.has(event.id)) {
+                    // Add new custom event
+                    mockEvents.push(event);
+                }
+            });
+            // Sort events by date
+            mockEvents.sort((a, b) => new Date(a.date) - new Date(b.date));
+        }
+        
         console.log('Data loaded successfully', {
             events: mockEvents.length,
             beaches: mockBeaches.length,
             wasteBins: mockWasteBins.length,
-            leaderboard: leaderboardData.length
+            leaderboard: leaderboardData.length,
+            customEvents: customEvents ? customEvents.length : 0
         });
     } catch (error) {
         console.error('Error loading data:', error);
@@ -74,6 +94,80 @@ async function loadData() {
         historyStats = {};
         statsData = {};
         config = { defaultCoordinates: [48.3733, -4.4180], defaultMapZoom: 12, defaultMapCenter: [48.3733, -4.4180] };
+        
+        // Try to load custom events from localStorage even if JSON fails
+        const customEvents = loadCustomEvents();
+        if (customEvents && customEvents.length > 0) {
+            mockEvents = customEvents;
+        }
+    }
+}
+
+// Save custom events to localStorage
+function saveCustomEvents() {
+    try {
+        // Get all custom events (events not in the original JSON)
+        const originalEventIds = ['e1', 'e2', 'e3', 'e4']; // IDs from the original JSON
+        const customEvents = mockEvents.filter(event => !originalEventIds.includes(event.id));
+        
+        // Also save events that have been modified (e.g., participant count changed)
+        const modifiedEvents = mockEvents.filter(event => {
+            if (originalEventIds.includes(event.id)) {
+                // Check if this event has been modified (e.g., participants changed)
+                const storedEvents = loadCustomEvents();
+                const storedEvent = storedEvents.find(e => e.id === event.id);
+                if (storedEvent && storedEvent.participants !== event.participants) {
+                    return true; // Event was modified
+                }
+            }
+            return false;
+        });
+        
+        // Combine custom and modified events
+        const allCustomEvents = [...customEvents];
+        modifiedEvents.forEach(event => {
+            if (!allCustomEvents.find(e => e.id === event.id)) {
+                allCustomEvents.push(event);
+            }
+        });
+        
+        localStorage.setItem('customEvents', JSON.stringify(allCustomEvents));
+        console.log('Custom events saved to localStorage:', allCustomEvents.length);
+    } catch (error) {
+        console.error('Error saving custom events:', error);
+    }
+}
+
+// Load custom events from localStorage
+function loadCustomEvents() {
+    try {
+        const customEventsJson = localStorage.getItem('customEvents');
+        if (customEventsJson) {
+            return JSON.parse(customEventsJson);
+        }
+    } catch (error) {
+        console.error('Error loading custom events:', error);
+    }
+    return [];
+}
+
+// Export events to JSON file (download)
+function exportEventsToJSON() {
+    try {
+        const dataStr = JSON.stringify(mockEvents, null, 2);
+        const dataBlob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(dataBlob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'events.json';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        console.log('Events exported to JSON file');
+    } catch (error) {
+        console.error('Error exporting events:', error);
+        alert('Erreur lors de l\'export des événements');
     }
 }
 
@@ -216,13 +310,22 @@ function showPage(pageName) {
                             // Add to mockEvents array
                             mockEvents.push(newEvent);
                             
+                            // Save custom events to localStorage
+                            saveCustomEvents();
+                            
                             // Update map if it exists
                             if (map) {
                                 updateMapMarkers();
                             }
                             
-                            // Show success message
-                            alert('Événement créé avec succès !');
+                            // Reset form
+                            eventForm.reset();
+                            
+                            // Show success message with option to export
+                            const exportConfirm = confirm('Événement créé avec succès !\n\nSouhaitez-vous télécharger le fichier events.json mis à jour ?');
+                            if (exportConfirm) {
+                                exportEventsToJSON();
+                            }
                             
                             // Redirect to dashboard and refresh the events list
                             showPage('dashboard');
@@ -299,6 +402,9 @@ function registerToEvent(eventId) {
     
     // Increment participants
     event.participants += 1;
+    
+    // Save custom events to localStorage (to preserve participant count)
+    saveCustomEvents();
     
     // Show success popup
     alert('Vous êtes bien inscrit à l\'événement "' + event.title + '" !');
@@ -467,8 +573,6 @@ function renderStatsData() {
 
 // Render profile data
 function renderProfileData() {
-    if (Object.keys(profileData).length === 0) return;
-    
     const initialsEl = document.getElementById('profileInitials');
     const nameEl = document.getElementById('profileName');
     const emailEl = document.getElementById('profileEmail');
@@ -482,20 +586,73 @@ function renderProfileData() {
     const badgesEl = document.getElementById('profileBadges');
     const badgesGridEl = document.getElementById('badgesGrid');
     
-    if (initialsEl) {
-        const initials = (profileData.firstName[0] + profileData.lastName[0]).toUpperCase();
-        initialsEl.textContent = initials;
+    // Get user data from localStorage (from registration/login)
+    const userName = localStorage.getItem('userName') || '';
+    const userEmail = localStorage.getItem('userEmail') || '';
+    const registeredName = localStorage.getItem('registeredName') || userName;
+    
+    // Parse name to get first and last name
+    let firstName = '';
+    let lastName = '';
+    if (registeredName || userName) {
+        const fullName = registeredName || userName;
+        const nameParts = fullName.split(' ');
+        firstName = nameParts[0] || '';
+        lastName = nameParts.slice(1).join(' ') || '';
     }
-    if (nameEl) nameEl.textContent = profileData.firstName + ' ' + profileData.lastName;
-    if (emailEl) emailEl.textContent = profileData.email;
-    if (memberSinceEl) memberSinceEl.textContent = 'Membre depuis le ' + new Date(profileData.memberSince).toLocaleDateString('fr-FR');
-    if (levelEl) levelEl.textContent = 'Niveau ' + profileData.level + ' - ' + profileData.levelName;
-    if (levelProgressEl) levelProgressEl.textContent = profileData.levelProgress + '% vers le niveau ' + (profileData.level + 1);
-    if (progressBarEl) progressBarEl.style.width = profileData.levelProgress + '%';
-    if (wasteInfoEl) wasteInfoEl.innerHTML = '<span>' + profileData.wasteCollected + ' kg collectes</span><span>' + profileData.wasteRequired + ' kg requis</span>';
-    if (wasteEl) wasteEl.textContent = profileData.wasteCollected + ' kg';
-    if (eventsEl) eventsEl.textContent = profileData.eventsParticipated;
-    if (badgesEl) badgesEl.textContent = profileData.badgesCount;
+    
+    // Use JSON data as defaults if user is not logged in or data is missing
+    const displayFirstName = firstName || (profileData.firstName || '');
+    const displayLastName = lastName || (profileData.lastName || '');
+    const displayEmail = userEmail || (profileData.email || '');
+    const displayName = (displayFirstName + ' ' + displayLastName).trim() || 'Utilisateur';
+    
+    // Get member since date (use current date if new user, or from JSON)
+    let memberSinceDate = profileData.memberSince;
+    if (!memberSinceDate && userEmail) {
+        // New user - use current date
+        memberSinceDate = new Date().toISOString().split('T')[0];
+    }
+    
+    // Use JSON data for stats if available, otherwise use defaults
+    const displayLevel = profileData.level || 1;
+    const displayLevelName = profileData.levelName || 'Débutant';
+    const displayLevelProgress = profileData.levelProgress || 0;
+    const displayWasteCollected = profileData.wasteCollected || 0;
+    const displayWasteRequired = profileData.wasteRequired || 50;
+    const displayEventsParticipated = profileData.eventsParticipated || 0;
+    const displayBadgesCount = profileData.badgesCount || 0;
+    
+    // Render profile information
+    if (initialsEl) {
+        if (displayFirstName && displayLastName) {
+            const initials = (displayFirstName[0] + displayLastName[0]).toUpperCase();
+            initialsEl.textContent = initials;
+        } else if (displayName) {
+            const nameParts = displayName.split(' ');
+            const initials = nameParts.map(n => n[0]).join('').toUpperCase().substring(0, 2);
+            initialsEl.textContent = initials;
+        } else {
+            initialsEl.textContent = '??';
+        }
+    }
+    
+    if (nameEl) nameEl.textContent = displayName;
+    if (emailEl) emailEl.textContent = displayEmail || 'Non renseigné';
+    
+    if (memberSinceEl && memberSinceDate) {
+        memberSinceEl.textContent = 'Membre depuis le ' + new Date(memberSinceDate).toLocaleDateString('fr-FR');
+    } else if (memberSinceEl) {
+        memberSinceEl.textContent = 'Membre depuis récemment';
+    }
+    
+    if (levelEl) levelEl.textContent = 'Niveau ' + displayLevel + ' - ' + displayLevelName;
+    if (levelProgressEl) levelProgressEl.textContent = displayLevelProgress + '% vers le niveau ' + (displayLevel + 1);
+    if (progressBarEl) progressBarEl.style.width = displayLevelProgress + '%';
+    if (wasteInfoEl) wasteInfoEl.innerHTML = '<span>' + displayWasteCollected + ' kg collectes</span><span>' + displayWasteRequired + ' kg requis</span>';
+    if (wasteEl) wasteEl.textContent = displayWasteCollected + ' kg';
+    if (eventsEl) eventsEl.textContent = displayEventsParticipated;
+    if (badgesEl) badgesEl.textContent = displayBadgesCount;
     
     if (badgesGridEl && badges.length > 0) {
         badgesGridEl.innerHTML = badges.map(badge => `
@@ -505,6 +662,8 @@ function renderProfileData() {
                 <p style="font-size: 0.875rem; color: #6b6b6b;">${badge.description}</p>
             </div>
         `).join('');
+    } else if (badgesGridEl) {
+        badgesGridEl.innerHTML = '<p style="color: #6b6b6b; text-align: center;">Aucun badge obtenu pour le moment</p>';
     }
 }
 
