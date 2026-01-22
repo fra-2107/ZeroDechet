@@ -1,0 +1,26 @@
+[
+  {
+    "id": "b1",
+    "name": "Plage du Moulin Blanc",
+    "coordinates": [48.3905, -4.4661],
+    "status": "needs-cleaning"
+  },
+  {
+    "id": "b2",
+    "name": "Anse de Lauberlac'h",
+    "coordinates": [48.3733, -4.3697],
+    "status": "clean"
+  },
+  {
+    "id": "b3",
+    "name": "Plage de Sainte-Anne",
+    "coordinates": [48.3575, -4.5536],
+    "status": "clean"
+  },
+  {
+    "id": "b4",
+    "name": "Plage de Trez-Hir",
+    "coordinates": [48.3427, -4.6242],
+    "status": "critical"
+  }
+]

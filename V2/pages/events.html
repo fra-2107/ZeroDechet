@@ -14,31 +14,31 @@
                         <form id="eventForm">
                             <div class="form-group">
                                 <label class="form-label">Titre de l'événement *</label>
-                                <input type="text" class="form-input" placeholder="Ex: Grand nettoyage de la plage..." required>
+                                <input type="text" id="eventTitle" name="title" class="form-input" placeholder="Ex: Grand nettoyage de la plage..." required>
                             </div>
 
                             <div class="form-group">
                                 <label class="form-label">Type d'événement *</label>
-                                <select class="form-select" required>
-                                    <option value="beach">🏖️ Plage</option>
-                                    <option value="coastal">🌊 Côtier</option>
-                                    <option value="underwater">🤿 Plongée sous-marine</option>
+                                <select id="eventType" name="type" class="form-select" required>
+                                    <option value="beach">Plage</option>
+                                    <option value="coastal">Cotier</option>
+                                    <option value="underwater">Plongee sous-marine</option>
                                 </select>
                             </div>
 
                             <div class="form-group">
                                 <label class="form-label">Date de l'événement *</label>
-                                <input type="date" class="form-input" required>
+                                <input type="date" id="eventDate" name="date" class="form-input" required>
                             </div>
 
                             <div class="form-group">
                                 <label class="form-label">Lieu de rendez-vous *</label>
-                                <input type="text" class="form-input" placeholder="Ex: Plage du Moulin Blanc, Brest" required>
+                                <input type="text" id="eventLocation" name="location" class="form-input" placeholder="Ex: Plage du Moulin Blanc, Brest" required>
                             </div>
 
                             <div class="form-group">
                                 <label class="form-label">Nombre maximum de participants</label>
-                                <input type="number" class="form-input" placeholder="Ex: 50">
+                                <input type="number" id="eventMaxParticipants" name="maxParticipants" class="form-input" placeholder="Ex: 50">
                                 <p style="font-size: 0.75rem; color: #6b6b6b; margin-top: 0.25rem;">
                                     Laissez vide si pas de limite
                                 </p>
@@ -46,7 +46,7 @@
 
                             <div class="form-group">
                                 <label class="form-label">Description</label>
-                                <textarea class="form-textarea" placeholder="Décrivez votre événement, le matériel fourni, les consignes..."></textarea>
+                                <textarea id="eventDescription" name="description" class="form-textarea" placeholder="Décrivez votre événement, le matériel fourni, les consignes..."></textarea>
                             </div>
 
                             <div style="display: flex; gap: 1rem;">
@@ -59,7 +59,7 @@
 
                 <div class="card" style="background-color: var(--sand-light); border: 2px solid rgba(10, 79, 112, 0.2);">
                     <div class="card-header">
-                        <h3 class="card-title">💡 Conseils pour un événement réussi</h3>
+                        <h3 class="card-title">Conseils pour un evenement reussi</h3>
                     </div>
                     <div class="card-content" style="font-size: 0.875rem;">
                         <p>• Prévoyez du matériel : gants, sacs poubelles, pinces</p>

@@ -7,27 +7,27 @@
 
                 <div class="grid grid-cols-4">
                     <div class="stat-card">
-                        <div class="stat-label">Total déchets</div>
-                        <div class="stat-value">1247 kg</div>
+                        <div class="stat-label">Total dechets</div>
+                        <div class="stat-value" id="statsTotalWaste">0 kg</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-label">Événements</div>
-                        <div class="stat-value" style="color: var(--algae-green)">28</div>
+                        <div class="stat-label">Evenements</div>
+                        <div class="stat-value" style="color: var(--algae-green)" id="statsTotalEvents">0</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-label">Participants</div>
-                        <div class="stat-value">542</div>
+                        <div class="stat-value" id="statsTotalParticipants">0</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-label">Plages nettoyées</div>
-                        <div class="stat-value" style="color: var(--algae-green)">12</div>
+                        <div class="stat-label">Plages nettoyees</div>
+                        <div class="stat-value" style="color: var(--algae-green)" id="statsBeachesCleaned">0</div>
                     </div>
                 </div>
 
                 <!-- Leaderboard -->
                 <div class="card">
                     <div class="card-header">
-                        <h3 class="card-title">🏆 Classement des contributeurs</h3>
+                        <h3 class="card-title">Classement des contributeurs</h3>
                         <p class="card-description">Top 5 des membres les plus actifs</p>
                     </div>
                     <div class="card-content" id="leaderboard"></div>
@@ -37,12 +37,12 @@
                 <div class="grid grid-cols-3">
                     <div class="card">
                         <div class="card-header">
-                            <h3 class="card-title">Moyenne par événement</h3>
+                            <h3 class="card-title">Moyenne par evenement</h3>
                         </div>
                         <div class="card-content">
-                            <div class="stat-value" style="font-size: 2rem;">45 kg</div>
+                            <div class="stat-value" style="font-size: 2rem;" id="statsAvgWaste">0 kg</div>
                             <p style="font-size: 0.875rem; color: #6b6b6b; margin-top: 0.25rem;">
-                                Déchets ramassés en moyenne
+                                Dechets ramasses en moyenne
                             </p>
                         </div>
                     </div>
@@ -51,9 +51,9 @@
                             <h3 class="card-title">Participation moyenne</h3>
                         </div>
                         <div class="card-content">
-                            <div class="stat-value" style="font-size: 2rem; color: var(--algae-green);">19</div>
+                            <div class="stat-value" style="font-size: 2rem; color: var(--algae-green);" id="statsAvgParticipants">0</div>
                             <p style="font-size: 0.875rem; color: #6b6b6b; margin-top: 0.25rem;">
-                                Participants par événement
+                                Participants par evenement
                             </p>
                         </div>
                     </div>
@@ -62,7 +62,7 @@
                             <h3 class="card-title">Impact individuel</h3>
                         </div>
                         <div class="card-content">
-                            <div class="stat-value" style="font-size: 2rem;">2.3 kg</div>
+                            <div class="stat-value" style="font-size: 2rem;" id="statsAvgIndividual">0 kg</div>
                             <p style="font-size: 0.875rem; color: #6b6b6b; margin-top: 0.25rem;">
                                 Par participant en moyenne
                             </p>

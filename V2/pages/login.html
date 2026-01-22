@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion - Clean Coast</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --ocean-blue: #0A4F70;
+            --algae-green: #3FA796;
+            --sand-light: #F2EFEA;
+            --slate-grey: #2E2E2E;
+            --border-color: rgba(46, 46, 46, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background-color: var(--sand-light);
+            color: var(--slate-grey);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-container {
+            background: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 2rem;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .login-header h1 {
+            font-family: 'Montserrat', sans-serif;
+            color: var(--ocean-blue);
+            margin-bottom: 0.5rem;
+        }
+
+        .login-header p {
+            color: #6b6b6b;
+            font-size: 0.875rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--ocean-blue);
+            box-shadow: 0 0 0 3px rgba(10, 79, 112, 0.1);
+        }
+
+        .login-btn {
+            width: 100%;
+            background-color: var(--ocean-blue);
+            color: white;
+            border: none;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .login-btn:hover {
+            background-color: #063a4f;
+        }
+
+        .register-btn {
+            width: 100%;
+            background-color: transparent;
+            color: var(--ocean-blue);
+            border: 2px solid var(--ocean-blue);
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 1rem;
+        }
+
+        .register-btn:hover {
+            background-color: var(--ocean-blue);
+            color: white;
+        }
+
+        .error-message {
+            color: #dc2626;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        .back-link a {
+            color: var(--ocean-blue);
+            text-decoration: none;
+        }
+
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <h1>Connexion</h1>
+            <p>Connectez-vous à votre compte Clean Coast</p>
+            <p style="font-size: 0.8rem; color: #6b6b6b; margin-top: 0.5rem;">
+                Connectez-vous avec votre compte ou créez-en un nouveau
+            </p>
+        </div>
+        
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Mot de passe</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            
+            <button type="submit" class="login-btn">Se connecter</button>
+            
+            <button type="button" class="register-btn" onclick="window.location.href='register.html'">Créer un compte</button>
+            
+            <div id="errorMessage" class="error-message">
+                Email ou mot de passe incorrect
+            </div>
+        </form>
+        
+        <div class="back-link">
+            <a href="../index.html">Retour à l'accueil</a>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            // Reset error message
+            document.getElementById('errorMessage').style.display = 'none';
+            
+            // Simple authentication - in a real app, this would be server-side
+            const registeredEmail = localStorage.getItem('registeredEmail');
+            const registeredName = localStorage.getItem('registeredName');
+            const registeredPassword = localStorage.getItem('registeredPassword');
+            
+            // Check against registered users first
+            if (registeredEmail && email === registeredEmail && password === registeredPassword) {
+                // Store login state
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('userEmail', email);
+                localStorage.setItem('userName', registeredName || 'Utilisateur');
+                
+                // Redirect to main page
+                window.location.href = '../index.html';
+            } else {
+                // Check test accounts (in production, this would be a server-side check)
+                fetch('../data/testAccounts.json')
+                    .then(res => res.json())
+                    .then(testAccounts => {
+                        const testAccount = testAccounts.find(acc => acc.email === email && acc.password === password);
+                        if (testAccount) {
+                            // Store login state
+                            localStorage.setItem('isLoggedIn', 'true');
+                            localStorage.setItem('userEmail', email);
+                            localStorage.setItem('userName', testAccount.name);
+                            
+                            // Redirect to main page
+                            window.location.href = '../index.html';
+                        } else {
+                            document.getElementById('errorMessage').style.display = 'block';
+                        }
+                    })
+                    .catch(() => {
+                        document.getElementById('errorMessage').style.display = 'block';
+                    });
+            }
+        });
+    </script>
+</body>
+</html>

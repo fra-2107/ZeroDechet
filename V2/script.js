@@ -1,71 +1,81 @@
-// Mock Data
-const mockEvents = [
-    {
-        id: 'e1',
-        title: 'Grand nettoyage de la plage du Moulin Blanc',
-        date: '2026-02-15',
-        location: 'Plage du Moulin Blanc, Brest',
-        coordinates: [48.3905, -4.4661],
-        participants: 42,
-        wasteCollected: 0,
-        status: 'upcoming',
-        type: 'beach'
-    },
-    {
-        id: 'e2',
-        title: 'Ramassage côtier Plougastel',
-        date: '2026-02-08',
-        location: "Anse de Lauberlac'h, Plougastel",
-        coordinates: [48.3733, -4.3697],
-        participants: 28,
-        wasteCollected: 85,
-        status: 'completed',
-        type: 'coastal'
-    },
-    {
-        id: 'e3',
-        title: 'Action plage de Sainte-Anne-du-Portzic',
-        date: '2026-01-20',
-        location: 'Sainte-Anne-du-Portzic',
-        coordinates: [48.3575, -4.5536],
-        participants: 35,
-        wasteCollected: 120,
-        status: 'completed',
-        type: 'beach'
-    },
-    {
-        id: 'e4',
-        title: 'Plongée nettoyage port de Brest',
-        date: '2026-02-22',
-        location: 'Port de Commerce, Brest',
-        coordinates: [48.3833, -4.4951],
-        participants: 12,
-        wasteCollected: 0,
-        status: 'upcoming',
-        type: 'underwater'
+// Data loaded from JSON files
+let mockEvents = [];
+let mockBeaches = [];
+let mockWasteBins = [];
+let leaderboardData = [];
+let dashboardStats = {};
+let challenges = [];
+let profileData = {};
+let badges = [];
+let historyStats = {};
+let statsData = {};
+let config = {};
+
+// Load data from JSON files
+async function loadData() {
+    try {
+        const [eventsRes, beachesRes, wasteBinsRes, leaderboardRes, dashboardStatsRes, challengesRes, profileRes, badgesRes, historyRes, statsRes, configRes] = await Promise.all([
+            fetch('data/events.json'),
+            fetch('data/beaches.json'),
+            fetch('data/wasteBins.json'),
+            fetch('data/leaderboard.json'),
+            fetch('data/dashboardStats.json'),
+            fetch('data/challenges.json'),
+            fetch('data/profileData.json'),
+            fetch('data/badges.json'),
+            fetch('data/historyStats.json'),
+            fetch('data/statsData.json'),
+            fetch('data/config.json')
+        ]);
+
+        // Check if all responses are ok
+        if (!eventsRes.ok) throw new Error('Failed to load events.json');
+        if (!beachesRes.ok) throw new Error('Failed to load beaches.json');
+        if (!wasteBinsRes.ok) throw new Error('Failed to load wasteBins.json');
+        if (!leaderboardRes.ok) throw new Error('Failed to load leaderboard.json');
+        if (!dashboardStatsRes.ok) throw new Error('Failed to load dashboardStats.json');
+        if (!challengesRes.ok) throw new Error('Failed to load challenges.json');
+        if (!profileRes.ok) throw new Error('Failed to load profileData.json');
+        if (!badgesRes.ok) throw new Error('Failed to load badges.json');
+        if (!historyRes.ok) throw new Error('Failed to load historyStats.json');
+        if (!statsRes.ok) throw new Error('Failed to load statsData.json');
+        if (!configRes.ok) throw new Error('Failed to load config.json');
+
+        mockEvents = await eventsRes.json();
+        mockBeaches = await beachesRes.json();
+        mockWasteBins = await wasteBinsRes.json();
+        leaderboardData = await leaderboardRes.json();
+        dashboardStats = await dashboardStatsRes.json();
+        challenges = await challengesRes.json();
+        profileData = await profileRes.json();
+        badges = await badgesRes.json();
+        historyStats = await historyRes.json();
+        statsData = await statsRes.json();
+        config = await configRes.json();
+        
+        console.log('Data loaded successfully', {
+            events: mockEvents.length,
+            beaches: mockBeaches.length,
+            wasteBins: mockWasteBins.length,
+            leaderboard: leaderboardData.length
+        });
+    } catch (error) {
+        console.error('Error loading data:', error);
+        console.error('Error details:', error.message, error.stack);
+        // Initialize with empty data to prevent crashes
+        mockEvents = [];
+        mockBeaches = [];
+        mockWasteBins = [];
+        leaderboardData = [];
+        dashboardStats = {};
+        challenges = [];
+        profileData = {};
+        badges = [];
+        historyStats = {};
+        statsData = {};
+        config = { defaultCoordinates: [48.3733, -4.4180], defaultMapZoom: 12, defaultMapCenter: [48.3733, -4.4180] };
     }
-];
-
-const mockBeaches = [
-    { id: 'b1', name: 'Plage du Moulin Blanc', coordinates: [48.3905, -4.4661], status: 'needs-cleaning' },
-    { id: 'b2', name: "Anse de Lauberlac'h", coordinates: [48.3733, -4.3697], status: 'clean' },
-    { id: 'b3', name: 'Plage de Sainte-Anne', coordinates: [48.3575, -4.5536], status: 'clean' },
-    { id: 'b4', name: 'Plage de Trez-Hir', coordinates: [48.3427, -4.6242], status: 'critical' }
-];
-
-const mockWasteBins = [
-    { id: 'w1', name: 'Point tri Moulin Blanc', coordinates: [48.3915, -4.4670], type: 'recycling' },
-    { id: 'w2', name: "Poubelle Lauberlac'h", coordinates: [48.3740, -4.3700], type: 'general' },
-    { id: 'w3', name: 'Tri sélectif Sainte-Anne', coordinates: [48.3580, -4.5540], type: 'recycling' }
-];
-
-const leaderboardData = [
-    { id: '1', name: 'Sophie Laurent', waste: 342, events: 22, level: 12 },
-    { id: '2', name: 'Thomas Moreau', waste: 318, events: 19, level: 11 },
-    { id: '3', name: 'Marie Dupont', waste: 245, events: 15, level: 8 },
-    { id: '4', name: 'Lucas Bernard', waste: 198, events: 14, level: 7 },
-    { id: '5', name: 'Emma Petit', waste: 175, events: 12, level: 7 }
-];
+}
 
 // Authentication functions
 function isLoggedIn() {
@@ -85,10 +95,10 @@ function handleAuth() {
             markers = { events: [], beaches: [], bins: [] };
         }
         // Redirect to login page
-        window.location.href = 'login.html';
+        window.location.href = 'pages/login.html';
     } else {
         // Redirect to login page
-        window.location.href = 'login.html';
+        window.location.href = 'pages/login.html';
     }
 }
 
@@ -150,9 +160,12 @@ function showPage(pageName) {
 
             // Initialize page-specific functionality after a small delay to ensure DOM is ready
             setTimeout(() => {
-                if (pageName === 'dashboard') {
-                    renderUpcomingEvents();
-                } else if (pageName === 'map') {
+                try {
+                    if (pageName === 'dashboard') {
+                        renderUpcomingEvents();
+                        renderDashboardStats();
+                        renderChallenges();
+                    } else if (pageName === 'map') {
                     // Reset filter buttons opacity
                     const filterButtons = ['filterEvents', 'filterBeaches', 'filterBins'];
                     filterButtons.forEach(btnId => {
@@ -166,18 +179,58 @@ function showPage(pageName) {
                     initMap();
                 } else if (pageName === 'stats') {
                     renderLeaderboard();
+                    renderStatsData();
                 } else if (pageName === 'history') {
                     renderHistory();
+                    renderHistoryStats();
+                } else if (pageName === 'profile') {
+                    renderProfileData();
                 } else if (pageName === 'events') {
                     // Attach event form handler
                     const eventForm = document.getElementById('eventForm');
-                    if (eventForm) {
+                    if (eventForm && !eventForm.dataset.listenerAttached) {
+                        eventForm.dataset.listenerAttached = 'true';
                         eventForm.addEventListener('submit', function(e) {
                             e.preventDefault();
+                            
+                            // Get form values
+                            const title = document.getElementById('eventTitle').value;
+                            const type = document.getElementById('eventType').value;
+                            const date = document.getElementById('eventDate').value;
+                            const location = document.getElementById('eventLocation').value;
+                            const maxParticipants = document.getElementById('eventMaxParticipants').value;
+                            
+                            // Create new event
+                            const newEvent = {
+                                id: 'e' + (mockEvents.length + 1),
+                                title: title,
+                                date: date,
+                                location: location,
+                                coordinates: config.defaultCoordinates || [48.3733, -4.4180],
+                                participants: 0,
+                                wasteCollected: 0,
+                                status: 'upcoming',
+                                type: type
+                            };
+                            
+                            // Add to mockEvents array
+                            mockEvents.push(newEvent);
+                            
+                            // Update map if it exists
+                            if (map) {
+                                updateMapMarkers();
+                            }
+                            
+                            // Show success message
                             alert('Événement créé avec succès !');
+                            
+                            // Redirect to dashboard and refresh the events list
                             showPage('dashboard');
                         });
                     }
+                }
+                } catch (error) {
+                    console.error('Error rendering page:', error);
                 }
             }, 10);
         })
@@ -197,33 +250,73 @@ function showPage(pageName) {
 // Render upcoming events
 function renderUpcomingEvents() {
     const container = document.getElementById('upcomingEvents');
+    if (!container) return;
+    
+    if (!mockEvents || mockEvents.length === 0) {
+        container.innerHTML = '<p style="color: #6b6b6b;">Aucun événement à venir</p>';
+        return;
+    }
+    
     const upcoming = mockEvents.filter(e => e.status === 'upcoming');
 
-    container.innerHTML = upcoming.map(event => `
+    container.innerHTML = upcoming.map((event, index) => `
         <div class="event-card">
             <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
                 <h3 style="flex: 1;">${event.title}</h3>
                 <span class="badge badge-green">
-                    ${event.type === 'beach' ? '🏖️ Plage' : event.type === 'coastal' ? '🌊 Côtier' : '🤿 Plongée'}
+                    ${event.type === 'beach' ? 'Plage' : event.type === 'coastal' ? 'Cotier' : 'Plongee'}
                 </span>
             </div>
             <p style="color: #6b6b6b; font-size: 0.875rem; margin-bottom: 0.5rem;">
-                📅 ${new Date(event.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}
+                Date: ${new Date(event.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}
             </p>
             <p style="color: #6b6b6b; font-size: 0.875rem; margin-bottom: 0.5rem;">
-                📍 ${event.location}
+                Lieu: ${event.location}
             </p>
             <p style="color: #6b6b6b; font-size: 0.875rem; margin-bottom: 1rem;">
-                👥 ${event.participants} participants inscrits
+                ${event.participants} participants inscrits
             </p>
-            <button class="btn btn-primary" style="width: 100%;">S'inscrire</button>
+            <button class="btn btn-primary register-event-btn" style="width: 100%;" data-event-id="${event.id}">S'inscrire</button>
         </div>
     `).join('');
+    
+    // Attach event listeners to register buttons
+    container.querySelectorAll('.register-event-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const eventId = this.getAttribute('data-event-id');
+            registerToEvent(eventId);
+        });
+    });
+}
+
+// Register to an event
+function registerToEvent(eventId) {
+    const event = mockEvents.find(e => e.id === eventId);
+    if (!event) {
+        alert('Événement introuvable');
+        return;
+    }
+    
+    // Increment participants
+    event.participants += 1;
+    
+    // Show success popup
+    alert('Vous êtes bien inscrit à l\'événement "' + event.title + '" !');
+    
+    // Refresh the events list
+    renderUpcomingEvents();
 }
 
 // Render leaderboard
 function renderLeaderboard() {
     const container = document.getElementById('leaderboard');
+    if (!container) return;
+    
+    if (!leaderboardData || leaderboardData.length === 0) {
+        container.innerHTML = '<p style="color: #6b6b6b;">Aucune donnée disponible</p>';
+        return;
+    }
+    
     container.innerHTML = leaderboardData.map((user, index) => `
         <div class="leaderboard-item">
             <div style="display: flex; align-items: center; gap: 1rem;">
@@ -244,7 +337,19 @@ function renderLeaderboard() {
 // Render history
 function renderHistory() {
     const container = document.getElementById('historyEvents');
+    if (!container) return;
+    
+    if (!mockEvents || mockEvents.length === 0) {
+        container.innerHTML = '<p style="color: #6b6b6b;">Aucun historique disponible</p>';
+        return;
+    }
+    
     const completed = mockEvents.filter(e => e.status === 'completed');
+    
+    if (completed.length === 0) {
+        container.innerHTML = '<p style="color: #6b6b6b;">Aucun événement terminé</p>';
+        return;
+    }
 
     container.innerHTML = completed.map(event => `
         <div class="card" style="margin-bottom: 1rem;">
@@ -253,16 +358,16 @@ function renderHistory() {
                     <div>
                         <h3 class="card-title">${event.title}</h3>
                         <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
-                            <span class="badge" style="background-color: #dcfce7; color: #166534;">✓ Terminé</span>
+                            <span class="badge" style="background-color: #dcfce7; color: #166534;">Termine</span>
                             <span class="badge badge-green">
-                                ${event.type === 'beach' ? '🏖️ Plage' : event.type === 'coastal' ? '🌊 Côtier' : '🤿 Plongée'}
+                                ${event.type === 'beach' ? 'Plage' : event.type === 'coastal' ? 'Cotier' : 'Plongee'}
                             </span>
                         </div>
                     </div>
                     <div style="display: flex; gap: 1rem;">
                         <div style="text-align: center; padding: 1rem; background-color: var(--sand-light); border-radius: 0.5rem; min-width: 100px;">
                             <div style="font-size: 1.5rem; font-weight: 700; color: var(--ocean-blue);">${event.wasteCollected}kg</div>
-                            <div style="font-size: 0.75rem; color: #6b6b6b;">Déchets</div>
+                            <div style="font-size: 0.75rem; color: #6b6b6b;">Dechets</div>
                         </div>
                         <div style="text-align: center; padding: 1rem; background-color: var(--sand-light); border-radius: 0.5rem; min-width: 100px;">
                             <div style="font-size: 1.5rem; font-weight: 700; color: var(--algae-green);">${event.participants}</div>
@@ -273,11 +378,134 @@ function renderHistory() {
             </div>
             <div class="card-content">
                 <p style="color: #6b6b6b; font-size: 0.875rem; margin-bottom: 0.5rem;">
-                    📅 ${new Date(event.date).toLocaleDateString('fr-FR')} • 📍 ${event.location}
+                    Date: ${new Date(event.date).toLocaleDateString('fr-FR')} - Lieu: ${event.location}
                 </p>
             </div>
         </div>
     `).join('');
+}
+
+// Render dashboard stats
+function renderDashboardStats() {
+    if (Object.keys(dashboardStats).length === 0) return;
+    
+    const wasteEl = document.getElementById('dashboardWaste');
+    const wasteMonthEl = document.getElementById('dashboardWasteMonth');
+    const eventsEl = document.getElementById('dashboardEvents');
+    const upcomingEl = document.getElementById('dashboardUpcoming');
+    const participantsEl = document.getElementById('dashboardParticipants');
+    const beachesEl = document.getElementById('dashboardBeaches');
+    
+    if (wasteEl) wasteEl.textContent = dashboardStats.wasteCollected + ' kg';
+    if (wasteMonthEl) wasteMonthEl.textContent = '+' + dashboardStats.wasteCollectedThisMonth + 'kg ce mois';
+    if (eventsEl) eventsEl.textContent = dashboardStats.events;
+    if (upcomingEl) upcomingEl.textContent = dashboardStats.upcomingEvents + ' a venir';
+    if (participantsEl) participantsEl.textContent = dashboardStats.participants;
+    if (beachesEl) beachesEl.textContent = dashboardStats.beachesCleaned;
+}
+
+// Render challenges
+function renderChallenges() {
+    if (challenges.length === 0) return;
+    
+    if (challenges[0]) {
+        const progress1 = (challenges[0].current / challenges[0].target) * 100;
+        const progressEl1 = document.getElementById('challenge1Progress');
+        const barEl1 = document.getElementById('challenge1Bar');
+        const deadlineEl1 = document.getElementById('challenge1Deadline');
+        
+        if (progressEl1) progressEl1.textContent = challenges[0].current + ' / ' + challenges[0].target;
+        if (barEl1) barEl1.style.width = progress1 + '%';
+        if (deadlineEl1) deadlineEl1.textContent = 'Date limite: ' + new Date(challenges[0].deadline).toLocaleDateString('fr-FR');
+    }
+    
+    if (challenges[1]) {
+        const progress2 = (challenges[1].current / challenges[1].target) * 100;
+        const progressEl2 = document.getElementById('challenge2Progress');
+        const barEl2 = document.getElementById('challenge2Bar');
+        const deadlineEl2 = document.getElementById('challenge2Deadline');
+        
+        if (progressEl2) progressEl2.textContent = challenges[1].current + ' / ' + challenges[1].target;
+        if (barEl2) barEl2.style.width = progress2 + '%';
+        if (deadlineEl2) deadlineEl2.textContent = 'Date limite: ' + new Date(challenges[1].deadline).toLocaleDateString('fr-FR');
+    }
+}
+
+// Render history stats
+function renderHistoryStats() {
+    if (Object.keys(historyStats).length === 0) return;
+    
+    const eventsEl = document.getElementById('historyEventsCount');
+    const wasteEl = document.getElementById('historyWaste');
+    const coParticipantsEl = document.getElementById('historyCoParticipants');
+    
+    if (eventsEl) eventsEl.textContent = historyStats.eventsParticipated;
+    if (wasteEl) wasteEl.textContent = historyStats.wasteCollected + ' kg';
+    if (coParticipantsEl) coParticipantsEl.textContent = historyStats.coParticipants;
+}
+
+// Render stats data
+function renderStatsData() {
+    if (Object.keys(statsData).length === 0) return;
+    
+    const totalWasteEl = document.getElementById('statsTotalWaste');
+    const totalEventsEl = document.getElementById('statsTotalEvents');
+    const totalParticipantsEl = document.getElementById('statsTotalParticipants');
+    const beachesEl = document.getElementById('statsBeachesCleaned');
+    const avgWasteEl = document.getElementById('statsAvgWaste');
+    const avgParticipantsEl = document.getElementById('statsAvgParticipants');
+    const avgIndividualEl = document.getElementById('statsAvgIndividual');
+    
+    if (totalWasteEl) totalWasteEl.textContent = statsData.totalWaste + ' kg';
+    if (totalEventsEl) totalEventsEl.textContent = statsData.totalEvents;
+    if (totalParticipantsEl) totalParticipantsEl.textContent = statsData.totalParticipants;
+    if (beachesEl) beachesEl.textContent = statsData.beachesCleaned;
+    if (avgWasteEl) avgWasteEl.textContent = statsData.averageWastePerEvent + ' kg';
+    if (avgParticipantsEl) avgParticipantsEl.textContent = statsData.averageParticipantsPerEvent;
+    if (avgIndividualEl) avgIndividualEl.textContent = statsData.averageWastePerParticipant + ' kg';
+}
+
+// Render profile data
+function renderProfileData() {
+    if (Object.keys(profileData).length === 0) return;
+    
+    const initialsEl = document.getElementById('profileInitials');
+    const nameEl = document.getElementById('profileName');
+    const emailEl = document.getElementById('profileEmail');
+    const memberSinceEl = document.getElementById('profileMemberSince');
+    const levelEl = document.getElementById('profileLevel');
+    const levelProgressEl = document.getElementById('profileLevelProgress');
+    const progressBarEl = document.getElementById('profileProgressBar');
+    const wasteInfoEl = document.getElementById('profileWasteInfo');
+    const wasteEl = document.getElementById('profileWaste');
+    const eventsEl = document.getElementById('profileEvents');
+    const badgesEl = document.getElementById('profileBadges');
+    const badgesGridEl = document.getElementById('badgesGrid');
+    
+    if (initialsEl) {
+        const initials = (profileData.firstName[0] + profileData.lastName[0]).toUpperCase();
+        initialsEl.textContent = initials;
+    }
+    if (nameEl) nameEl.textContent = profileData.firstName + ' ' + profileData.lastName;
+    if (emailEl) emailEl.textContent = profileData.email;
+    if (memberSinceEl) memberSinceEl.textContent = 'Membre depuis le ' + new Date(profileData.memberSince).toLocaleDateString('fr-FR');
+    if (levelEl) levelEl.textContent = 'Niveau ' + profileData.level + ' - ' + profileData.levelName;
+    if (levelProgressEl) levelProgressEl.textContent = profileData.levelProgress + '% vers le niveau ' + (profileData.level + 1);
+    if (progressBarEl) progressBarEl.style.width = profileData.levelProgress + '%';
+    if (wasteInfoEl) wasteInfoEl.innerHTML = '<span>' + profileData.wasteCollected + ' kg collectes</span><span>' + profileData.wasteRequired + ' kg requis</span>';
+    if (wasteEl) wasteEl.textContent = profileData.wasteCollected + ' kg';
+    if (eventsEl) eventsEl.textContent = profileData.eventsParticipated;
+    if (badgesEl) badgesEl.textContent = profileData.badgesCount;
+    
+    if (badgesGridEl && badges.length > 0) {
+        badgesGridEl.innerHTML = badges.map(badge => `
+            <div style="padding: 1rem; background-color: var(--sand-light); border-radius: 0.5rem;">
+                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">${badge.icon === 'star' ? '*' : badge.icon === 'ocean' ? '~' : badge.icon === 'runner' ? '>' : ''}</div>
+                <h4 style="font-weight: 600; margin-bottom: 0.25rem;">${badge.name}</h4>
+                <p style="font-size: 0.875rem; color: #6b6b6b;">${badge.description}</p>
+            </div>
+        `).join('');
+    }
 }
 
 // Map functionality
@@ -309,7 +537,9 @@ function initMap() {
         }
 
         // Initialize new map
-        map = L.map('map').setView([48.3733, -4.4180], 12);
+        const mapCenter = config.defaultMapCenter || [48.3733, -4.4180];
+        const mapZoom = config.defaultMapZoom || 12;
+        map = L.map('map').setView(mapCenter, mapZoom);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors'
@@ -360,9 +590,9 @@ function updateMapMarkers() {
             marker.bindPopup(`
                 <div style="padding: 0.5rem; min-width: 200px;">
                     <h3 style="color: var(--ocean-blue); margin-bottom: 0.5rem;">${event.title}</h3>
-                    <p style="font-size: 0.875rem; margin-bottom: 0.25rem;">📅 ${new Date(event.date).toLocaleDateString('fr-FR')}</p>
-                    <p style="font-size: 0.875rem; margin-bottom: 0.25rem;">📍 ${event.location}</p>
-                    <p style="font-size: 0.875rem;">👥 ${event.participants} participants</p>
+                    <p style="font-size: 0.875rem; margin-bottom: 0.25rem;">Date: ${new Date(event.date).toLocaleDateString('fr-FR')}</p>
+                    <p style="font-size: 0.875rem; margin-bottom: 0.25rem;">Lieu: ${event.location}</p>
+                    <p style="font-size: 0.875rem;">${event.participants} participants</p>
                 </div>
             `);
 
@@ -397,8 +627,8 @@ function updateMapMarkers() {
                 <div style="padding: 0.5rem; min-width: 200px;">
                     <h3 style="color: var(--algae-green); margin-bottom: 0.5rem;">${beach.name}</h3>
                     <p style="font-size: 0.875rem;">
-                        ${beach.status === 'clean' ? '✓ Propre' :
-                          beach.status === 'needs-cleaning' ? '⚠️ À nettoyer' : '🚨 Critique'}
+                        ${beach.status === 'clean' ? 'Propre' :
+                          beach.status === 'needs-cleaning' ? 'A nettoyer' : 'Critique'}
                     </p>
                 </div>
             `);
@@ -424,7 +654,7 @@ function updateMapMarkers() {
                 <div style="padding: 0.5rem; min-width: 150px;">
                     <h3 style="color: #FFB74D; margin-bottom: 0.5rem;">${bin.name}</h3>
                     <p style="font-size: 0.875rem;">
-                        ${bin.type === 'recycling' ? '♻️ Tri sélectif' : '🗑️ Général'}
+                        ${bin.type === 'recycling' ? 'Tri selectif' : 'General'}
                     </p>
                 </div>
             `);
@@ -435,10 +665,46 @@ function updateMapMarkers() {
 }
 
 // Event listeners
-document.addEventListener('DOMContentLoaded', function() {
-    // Check login status on page load
-    updateAuthUI();
+document.addEventListener('DOMContentLoaded', async function() {
+    console.log('DOM loaded, initializing application...');
+    
+    try {
+        // Load data from JSON files
+        console.log('Loading data from JSON files...');
+        await loadData();
+        console.log('Data loaded, updating UI...');
+        
+        // Check login status on page load
+        updateAuthUI();
 
-    // Load default page (dashboard)
-    showPage('dashboard');
+        // Load default page (dashboard)
+        console.log('Loading dashboard page...');
+        showPage('dashboard');
+        console.log('Application initialized successfully');
+    } catch (error) {
+        console.error('Error initializing application:', error);
+        console.error('Error stack:', error.stack);
+        
+        // Show error message to user
+        const pageContent = document.getElementById('page-content');
+        if (pageContent) {
+            pageContent.innerHTML = `
+                <div class="page-content" style="padding: 2rem;">
+                    <h1 style="color: #dc2626;">Erreur de chargement</h1>
+                    <p>Impossible de charger l'application. Veuillez vérifier :</p>
+                    <ul style="margin: 1rem 0; padding-left: 2rem;">
+                        <li>Que le serveur est bien lancé</li>
+                        <li>Que tous les fichiers JSON sont présents dans le dossier data/</li>
+                        <li>Que vous accédez à l'application via http://localhost:8000/V2/index.html</li>
+                    </ul>
+                    <p style="font-size: 0.875rem; color: #6b6b6b; margin-top: 1rem;">
+                        <strong>Erreur technique:</strong> ${error.message}
+                    </p>
+                    <p style="font-size: 0.75rem; color: #6b6b6b; margin-top: 0.5rem;">
+                        Ouvrez la console du navigateur (F12) pour plus de détails.
+                    </p>
+                </div>
+            `;
+        }
+    }
 });

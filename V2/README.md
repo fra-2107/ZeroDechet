@@ -7,8 +7,9 @@ Application web pour la protection et le nettoyage des côtes bretonnes.
 ```
 V2/
 ├── index.html          # Page principale de l'application
-├── login.html          # Page de connexion
-├── register.html       # Page d'inscription
+├── pages/
+│   ├── login.html      # Page de connexion
+│   ├── register.html   # Page d'inscription
 ├── styles.css          # Feuille de styles CSS
 ├── script.js           # Logique JavaScript
 └── start_server.bat   # Script pour lancer le serveur
@@ -63,8 +64,8 @@ python -m http.server 8000
 
 Ouvrez votre navigateur et allez sur :
 - **Page principale** : `http://localhost:8000/V2/index.html`
-- **Connexion** : `http://localhost:8000/V2/login.html`
-- **Inscription** : `http://localhost:8000/V2/register.html`
+- **Connexion** : `http://localhost:8000/V2/pages/login.html`
+- **Inscription** : `http://localhost:8000/V2/pages/register.html`
 
 ### Identifiants de test
 

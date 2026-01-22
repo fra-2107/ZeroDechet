@@ -1,0 +1,20 @@
+[
+  {
+    "id": "badge1",
+    "name": "Pionnier",
+    "description": "Premier événement complété",
+    "icon": "star"
+  },
+  {
+    "id": "badge2",
+    "name": "Ocean Propre",
+    "description": "100kg de déchets ramassés",
+    "icon": "ocean"
+  },
+  {
+    "id": "badge3",
+    "name": "Marathonien",
+    "description": "10 événements participés",
+    "icon": "runner"
+  }
+]

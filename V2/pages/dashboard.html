@@ -8,64 +8,64 @@
                 <!-- Stats -->
                 <div class="grid grid-cols-4">
                     <div class="stat-card">
-                        <div class="stat-label">Déchets ramassés</div>
-                        <div class="stat-value">1247 kg</div>
-                        <p style="font-size: 0.75rem; color: #6b6b6b; margin-top: 0.25rem;">+149kg ce mois</p>
+                        <div class="stat-label">Dechets ramasses</div>
+                        <div class="stat-value" id="dashboardWaste">0 kg</div>
+                        <p style="font-size: 0.75rem; color: #6b6b6b; margin-top: 0.25rem;" id="dashboardWasteMonth">+0kg ce mois</p>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-label">Événements</div>
-                        <div class="stat-value" style="color: var(--algae-green)">28</div>
-                        <p style="font-size: 0.75rem; color: #6b6b6b; margin-top: 0.25rem;">3 à venir</p>
+                        <div class="stat-label">Evenements</div>
+                        <div class="stat-value" style="color: var(--algae-green)" id="dashboardEvents">0</div>
+                        <p style="font-size: 0.75rem; color: #6b6b6b; margin-top: 0.25rem;" id="dashboardUpcoming">0 a venir</p>
                     </div>
                     <div class="stat-card">
                         <div class="stat-label">Participants</div>
-                        <div class="stat-value">542</div>
-                        <p style="font-size: 0.75rem; color: #6b6b6b; margin-top: 0.25rem;">Total depuis le début</p>
+                        <div class="stat-value" id="dashboardParticipants">0</div>
+                        <p style="font-size: 0.75rem; color: #6b6b6b; margin-top: 0.25rem;">Total depuis le debut</p>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-label">Plages nettoyées</div>
-                        <div class="stat-value" style="color: var(--algae-green)">12</div>
+                        <div class="stat-label">Plages nettoyees</div>
+                        <div class="stat-value" style="color: var(--algae-green)" id="dashboardBeaches">0</div>
                         <p style="font-size: 0.75rem; color: #6b6b6b; margin-top: 0.25rem;">Sur la zone couverte</p>
                     </div>
                 </div>
 
                 <!-- Challenges -->
-                <h2>Défis en cours</h2>
+                <h2>Defis en cours</h2>
                 <div class="grid grid-cols-2">
                     <div class="card">
                         <div class="card-header">
-                            <h3 class="card-title">🎯 Objectif 500kg</h3>
-                            <p class="card-description">Ramasser 500kg de déchets en février</p>
+                            <h3 class="card-title">Objectif 500kg</h3>
+                            <p class="card-description">Ramasser 500kg de dechets en fevrier</p>
                         </div>
-                        <div class="card-content">
+                        <div class="card-content" id="challenge1">
                             <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
                                 <span style="font-size: 0.875rem; color: #6b6b6b;">Progression</span>
-                                <span style="font-weight: 500;">367 / 500</span>
+                                <span style="font-weight: 500;" id="challenge1Progress">0 / 0</span>
                             </div>
                             <div class="progress">
-                                <div class="progress-bar" style="width: 73.4%"></div>
+                                <div class="progress-bar" id="challenge1Bar" style="width: 0%"></div>
                             </div>
-                            <p style="font-size: 0.75rem; color: #6b6b6b; margin-top: 0.5rem;">
-                                Date limite: 28 février 2026
+                            <p style="font-size: 0.75rem; color: #6b6b6b; margin-top: 0.5rem;" id="challenge1Deadline">
+                                Date limite: -
                             </p>
                         </div>
                     </div>
 
                     <div class="card">
                         <div class="card-header">
-                            <h3 class="card-title">🎯 100 participants</h3>
-                            <p class="card-description">Réunir 100 participants sur un seul événement</p>
+                            <h3 class="card-title">100 participants</h3>
+                            <p class="card-description">Reunir 100 participants sur un seul evenement</p>
                         </div>
-                        <div class="card-content">
+                        <div class="card-content" id="challenge2">
                             <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
                                 <span style="font-size: 0.875rem; color: #6b6b6b;">Progression</span>
-                                <span style="font-weight: 500;">42 / 100</span>
+                                <span style="font-weight: 500;" id="challenge2Progress">0 / 0</span>
                             </div>
                             <div class="progress">
-                                <div class="progress-bar" style="width: 42%"></div>
+                                <div class="progress-bar" id="challenge2Bar" style="width: 0%"></div>
                             </div>
-                            <p style="font-size: 0.75rem; color: #6b6b6b; margin-top: 0.5rem;">
-                                Date limite: 31 mars 2026
+                            <p style="font-size: 0.75rem; color: #6b6b6b; margin-top: 0.5rem;" id="challenge2Deadline">
+                                Date limite: -
                             </p>
                         </div>
                     </div>
@@ -73,8 +73,8 @@
 
                 <!-- Upcoming Events -->
                 <div style="display: flex; justify-content: space-between; align-items: center; margin: 2rem 0 1rem;">
-                    <h2 style="margin: 0;">Prochains événements</h2>
-                    <button class="btn btn-secondary" onclick="showPage('events')">Créer un événement</button>
+                    <h2 style="margin: 0;">Prochains evenements</h2>
+                    <button class="btn btn-secondary" onclick="showPage('events')">Creer un evenement</button>
                 </div>
 
                 <div class="grid grid-cols-3" id="upcomingEvents"></div>
