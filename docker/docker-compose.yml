@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql_backlog
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword    # mot de passe root
+      MYSQL_DATABASE: backlog_db           # base créée automatiquement
+      MYSQL_USER: backlog_user             # user standard
+      MYSQL_PASSWORD: backlog_pass         # mot de passe de l'user
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./data:/var/lib/mysql             # persistance des données
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    command: --default-authentication-plugin=mysql_native_password
