@@ -177,7 +177,7 @@
     </div>
 
     <script>
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
             const email = document.getElementById('email').value;
@@ -186,41 +186,42 @@
             // Reset error message
             document.getElementById('errorMessage').style.display = 'none';
             
-            // Simple authentication - in a real app, this would be server-side
-            const registeredEmail = localStorage.getItem('registeredEmail');
-            const registeredName = localStorage.getItem('registeredName');
-            const registeredPassword = localStorage.getItem('registeredPassword');
-            
-            // Check against registered users first
-            if (registeredEmail && email === registeredEmail && password === registeredPassword) {
-                // Store login state
-                localStorage.setItem('isLoggedIn', 'true');
-                localStorage.setItem('userEmail', email);
-                localStorage.setItem('userName', registeredName || 'Utilisateur');
+            try {
+                // Appel à l'API pour vérifier les identifiants
+                const response = await fetch('http://localhost:3000/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
                 
-                // Redirect to main page
-                window.location.href = '../index.html';
-            } else {
-                // Check test accounts (in production, this would be a server-side check)
-                fetch('../data/testAccounts.json')
-                    .then(res => res.json())
-                    .then(testAccounts => {
-                        const testAccount = testAccounts.find(acc => acc.email === email && acc.password === password);
-                        if (testAccount) {
-                            // Store login state
-                            localStorage.setItem('isLoggedIn', 'true');
-                            localStorage.setItem('userEmail', email);
-                            localStorage.setItem('userName', testAccount.name);
-                            
-                            // Redirect to main page
-                            window.location.href = '../index.html';
-                        } else {
-                            document.getElementById('errorMessage').style.display = 'block';
-                        }
-                    })
-                    .catch(() => {
-                        document.getElementById('errorMessage').style.display = 'block';
-                    });
+                if (response.ok) {
+                    const userData = await response.json();
+                    
+                    // Stocker les informations utilisateur dans localStorage
+                    localStorage.setItem('isLoggedIn', 'true');
+                    localStorage.setItem('userId', userData.id);
+                    localStorage.setItem('userEmail', userData.email);
+                    localStorage.setItem('userName', `${userData.prenom} ${userData.nom}`);
+                    localStorage.setItem('userNom', userData.nom);
+                    localStorage.setItem('userPrenom', userData.prenom);
+                    localStorage.setItem('userDateNaissance', userData.dateNaissance || '');
+                    localStorage.setItem('userNiveau', userData.niveau);
+                    localStorage.setItem('userNbCollecte', userData.nbCollecte);
+                    localStorage.setItem('userNbUserParraine', userData.nbUserParraine);
+                    
+                    // Rediriger vers la page principale
+                    window.location.href = '../index.html';
+                } else {
+                    const error = await response.json();
+                    document.getElementById('errorMessage').textContent = error.error || 'Email ou mot de passe incorrect';
+                    document.getElementById('errorMessage').style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Erreur de connexion:', error);
+                document.getElementById('errorMessage').textContent = 'Erreur de connexion au serveur';
+                document.getElementById('errorMessage').style.display = 'block';
             }
         });
     </script>

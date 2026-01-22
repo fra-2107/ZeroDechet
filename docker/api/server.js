@@ -244,6 +244,123 @@ app.get('/badges', (req, res) => {
   });
 });
 
+// POST /login - Connexion utilisateur
+app.post('/login', (req, res) => {
+  if (!db) {
+    return res.status(503).json({ error: 'Database not connected' });
+  }
+  const { email, password } = req.body;
+  
+  if (!email || !password) {
+    return res.status(400).json({ error: 'Email et mot de passe requis' });
+  }
+  
+  // Rechercher l'utilisateur par email
+  db.query('SELECT id_user, mail, nom, prenom, date_naissance, niveau, nb_collecte, nb_user_parraine, hash_mdp FROM user WHERE mail = ?', [email], (err, results) => {
+    if (err) {
+      console.error('Error fetching user:', err);
+      return res.status(500).json({ error: err.message });
+    }
+    
+    if (results.length === 0) {
+      return res.status(401).json({ error: 'Email ou mot de passe incorrect' });
+    }
+    
+    const user = results[0];
+    
+    // Vérifier le mot de passe
+    // NOTE: En production, utiliser bcrypt.compare() avec un vrai hash
+    // Pour l'instant, comparaison simple (hash_mdp peut être en clair ou base64)
+    const passwordMatch = user.hash_mdp === password || 
+                         user.hash_mdp === Buffer.from(password).toString('base64') ||
+                         user.hash_mdp === Buffer.from(password).toString('hex');
+    
+    if (passwordMatch) {
+      // Connexion réussie - retourner les infos utilisateur (sans le hash)
+      res.json({
+        id: user.id_user,
+        email: user.mail,
+        nom: user.nom,
+        prenom: user.prenom,
+        dateNaissance: user.date_naissance,
+        niveau: user.niveau,
+        nbCollecte: user.nb_collecte,
+        nbUserParraine: user.nb_user_parraine
+      });
+    } else {
+      res.status(401).json({ error: 'Email ou mot de passe incorrect' });
+    }
+  });
+});
+
+// GET /user/:id - Récupérer les informations d'un utilisateur
+app.get('/user/:id', (req, res) => {
+  if (!db) {
+    return res.status(503).json({ error: 'Database not connected' });
+  }
+  const userId = req.params.id;
+  
+  db.query(`
+    SELECT 
+      u.id_user,
+      u.mail,
+      u.nom,
+      u.prenom,
+      u.date_naissance,
+      u.niveau,
+      u.nb_collecte,
+      u.nb_user_parraine,
+      COUNT(DISTINCT p.id_event) as nb_evenements,
+      COALESCE(SUM(e.dechet_collecte), 0) as total_dechets,
+      COUNT(DISTINCT o.id_badge) as nb_badges
+    FROM user u
+    LEFT JOIN participe p ON u.id_user = p.id_user
+    LEFT JOIN evenement e ON p.id_event = e.id_event
+    LEFT JOIN obtient o ON u.id_user = o.id_user
+    WHERE u.id_user = ?
+    GROUP BY u.id_user, u.mail, u.nom, u.prenom, u.date_naissance, u.niveau, u.nb_collecte, u.nb_user_parraine
+  `, [userId], (err, results) => {
+    if (err) {
+      console.error('Error fetching user:', err);
+      return res.status(500).json({ error: err.message });
+    }
+    
+    if (results.length === 0) {
+      return res.status(404).json({ error: 'Utilisateur non trouvé' });
+    }
+    
+    const user = results[0];
+    
+    // Récupérer les badges de l'utilisateur
+    db.query(`
+      SELECT b.id_badge, b.nom, b.description
+      FROM badge b
+      INNER JOIN obtient o ON b.id_badge = o.id_badge
+      WHERE o.id_user = ?
+    `, [userId], (err, badgeResults) => {
+      if (err) {
+        console.error('Error fetching badges:', err);
+        badgeResults = [];
+      }
+      
+      res.json({
+        id: user.id_user,
+        email: user.mail,
+        nom: user.nom,
+        prenom: user.prenom,
+        dateNaissance: user.date_naissance,
+        niveau: user.niveau,
+        nbCollecte: user.nb_collecte,
+        nbUserParraine: user.nb_user_parraine,
+        nbEvenements: parseInt(user.nb_evenements) || 0,
+        totalDechets: parseInt(user.total_dechets) || 0,
+        nbBadges: parseInt(user.nb_badges) || 0,
+        badges: badgeResults || []
+      });
+    });
+  });
+});
+
 app.listen(3000, () => {
   console.log('API Node lancée sur le port 3000');
 });

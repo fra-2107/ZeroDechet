@@ -171,15 +171,22 @@ function clearCustomEvents() {
 
 // Authentication functions
 function isLoggedIn() {
-    return localStorage.getItem('isLoggedIn') === 'true';
+    return localStorage.getItem('isLoggedIn') === 'true' && localStorage.getItem('userId');
 }
 
 function handleAuth() {
     if (isLoggedIn()) {
-        // Logout
+        // Logout - supprimer toutes les données utilisateur
         localStorage.removeItem('isLoggedIn');
+        localStorage.removeItem('userId');
         localStorage.removeItem('userEmail');
         localStorage.removeItem('userName');
+        localStorage.removeItem('userNom');
+        localStorage.removeItem('userPrenom');
+        localStorage.removeItem('userDateNaissance');
+        localStorage.removeItem('userNiveau');
+        localStorage.removeItem('userNbCollecte');
+        localStorage.removeItem('userNbUserParraine');
         // Destroy map if it exists
         if (map) {
             map.remove();
@@ -670,7 +677,7 @@ async function renderStatsData() {
 }
 
 // Render profile data
-function renderProfileData() {
+async function renderProfileData() {
     const initialsEl = document.getElementById('profileInitials');
     const nameEl = document.getElementById('profileName');
     const emailEl = document.getElementById('profileEmail');
@@ -684,42 +691,58 @@ function renderProfileData() {
     const badgesEl = document.getElementById('profileBadges');
     const badgesGridEl = document.getElementById('badgesGrid');
     
+    // Vérifier si l'utilisateur est connecté
+    const userId = localStorage.getItem('userId');
+    let userData = null;
+    
+    // Charger les données depuis l'API si l'utilisateur est connecté
+    if (userId && isLoggedIn()) {
+        try {
+            const response = await fetch(`${API_BASE_URL}/user/${userId}`);
+            if (response.ok) {
+                userData = await response.json();
+                console.log('User data loaded from API:', userData);
+                
+                // Mettre à jour localStorage avec les données fraîches
+                localStorage.setItem('userEmail', userData.email);
+                localStorage.setItem('userName', `${userData.prenom} ${userData.nom}`);
+                localStorage.setItem('userNom', userData.nom);
+                localStorage.setItem('userPrenom', userData.prenom);
+                localStorage.setItem('userNiveau', userData.niveau);
+                localStorage.setItem('userNbCollecte', userData.nbCollecte);
+            }
+        } catch (error) {
+            console.error('Error loading user data:', error);
+        }
+    }
+    
     // Get user data from localStorage (from registration/login)
     const userName = localStorage.getItem('userName') || '';
     const userEmail = localStorage.getItem('userEmail') || '';
+    const userNom = localStorage.getItem('userNom') || '';
+    const userPrenom = localStorage.getItem('userPrenom') || '';
     const registeredName = localStorage.getItem('registeredName') || userName;
     
-    // Parse name to get first and last name
-    let firstName = '';
-    let lastName = '';
-    if (registeredName || userName) {
-        const fullName = registeredName || userName;
-        const nameParts = fullName.split(' ');
-        firstName = nameParts[0] || '';
-        lastName = nameParts.slice(1).join(' ') || '';
-    }
-    
-    // Use JSON data as defaults if user is not logged in or data is missing
-    const displayFirstName = firstName || (profileData.firstName || '');
-    const displayLastName = lastName || (profileData.lastName || '');
-    const displayEmail = userEmail || (profileData.email || '');
+    // Utiliser les données de l'API si disponibles, sinon localStorage, sinon defaults
+    const displayFirstName = userData ? userData.prenom : (userPrenom || registeredName.split(' ')[0] || profileData.firstName || '');
+    const displayLastName = userData ? userData.nom : (userNom || registeredName.split(' ').slice(1).join(' ') || profileData.lastName || '');
+    const displayEmail = userData ? userData.email : (userEmail || profileData.email || '');
     const displayName = (displayFirstName + ' ' + displayLastName).trim() || 'Utilisateur';
     
-    // Get member since date (use current date if new user, or from JSON)
-    let memberSinceDate = profileData.memberSince;
+    // Get member since date
+    let memberSinceDate = userData?.dateNaissance || profileData.memberSince;
     if (!memberSinceDate && userEmail) {
-        // New user - use current date
         memberSinceDate = new Date().toISOString().split('T')[0];
     }
     
-    // Use JSON data for stats if available, otherwise use defaults
-    const displayLevel = profileData.level || 1;
-    const displayLevelName = profileData.levelName || 'Débutant';
-    const displayLevelProgress = profileData.levelProgress || 0;
-    const displayWasteCollected = profileData.wasteCollected || 0;
-    const displayWasteRequired = profileData.wasteRequired || 50;
-    const displayEventsParticipated = profileData.eventsParticipated || 0;
-    const displayBadgesCount = profileData.badgesCount || 0;
+    // Utiliser les données de l'API pour les stats
+    const displayLevel = userData ? userData.niveau : (parseInt(localStorage.getItem('userNiveau')) || profileData.level || 1);
+    const displayLevelName = displayLevel === 1 ? 'Débutant' : displayLevel === 2 ? 'Intermédiaire' : displayLevel === 3 ? 'Avancé' : 'Expert';
+    const displayLevelProgress = Math.min(100, Math.max(0, (userData ? userData.totalDechets : 0) / 50 * 100));
+    const displayWasteCollected = userData ? userData.totalDechets : (parseInt(localStorage.getItem('userNbCollecte')) || profileData.wasteCollected || 0);
+    const displayWasteRequired = 50; // Fixe pour l'instant
+    const displayEventsParticipated = userData ? userData.nbEvenements : (profileData.eventsParticipated || 0);
+    const displayBadgesCount = userData ? userData.nbBadges : (profileData.badgesCount || 0);
     
     // Render profile information
     if (initialsEl) {
@@ -752,12 +775,16 @@ function renderProfileData() {
     if (eventsEl) eventsEl.textContent = displayEventsParticipated;
     if (badgesEl) badgesEl.textContent = displayBadgesCount;
     
-    if (badgesGridEl && badges.length > 0) {
-        badgesGridEl.innerHTML = badges.map(badge => `
+    // Afficher les badges de l'utilisateur (depuis l'API si disponible, sinon depuis la liste globale)
+    const userBadges = userData?.badges || [];
+    const badgesToDisplay = userBadges.length > 0 ? userBadges : badges;
+    
+    if (badgesGridEl && badgesToDisplay.length > 0) {
+        badgesGridEl.innerHTML = badgesToDisplay.map(badge => `
             <div style="padding: 1rem; background-color: var(--sand-light); border-radius: 0.5rem;">
-                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">${badge.icon === 'star' ? '*' : badge.icon === 'ocean' ? '~' : badge.icon === 'runner' ? '>' : ''}</div>
-                <h4 style="font-weight: 600; margin-bottom: 0.25rem;">${badge.name}</h4>
-                <p style="font-size: 0.875rem; color: #6b6b6b;">${badge.description}</p>
+                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">${badge.icon === 'star' ? '*' : badge.icon === 'ocean' ? '~' : badge.icon === 'runner' ? '>' : '⭐'}</div>
+                <h4 style="font-weight: 600; margin-bottom: 0.25rem;">${badge.name || badge.nom}</h4>
+                <p style="font-size: 0.875rem; color: #6b6b6b;">${badge.description || ''}</p>
             </div>
         `).join('');
     } else if (badgesGridEl) {
