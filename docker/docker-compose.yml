@@ -30,13 +30,25 @@ services:
     container_name: phpmyadmin
     restart: always
     environment:
-      PMA_HOST: mysql          # <-- Nom du service MySQL
+      PMA_HOST: mysql
       PMA_PORT: 3306
       MYSQL_ROOT_PASSWORD: rootpassword
     ports:
-      - "8080:80"              # phpMyAdmin accessible sur http://localhost:8080
+      - "8080:80"
     depends_on:
       - mysql
+
+  front:
+    image: nginx:latest
+    container_name: front
+    restart: always
+    ports:
+      - "4200:80"
+    volumes:
+      - ../V2:/usr/share/nginx/html:ro
+    depends_on:
+      - api
+
 
 volumes:
   mysql_data:
