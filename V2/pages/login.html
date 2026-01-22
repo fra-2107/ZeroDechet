@@ -211,8 +211,8 @@
                     localStorage.setItem('userNbCollecte', userData.nbCollecte);
                     localStorage.setItem('userNbUserParraine', userData.nbUserParraine);
                     
-                    // Rediriger vers la page principale
-                    window.location.href = '../index.html';
+                    // Rediriger vers l'application principale
+                    window.location.href = '../app.html';
                 } else {
                     const error = await response.json();
                     document.getElementById('errorMessage').textContent = error.error || 'Email ou mot de passe incorrect';
