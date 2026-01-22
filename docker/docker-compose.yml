@@ -6,13 +6,24 @@ services:
     container_name: mysql_backlog
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: rootpassword    # mot de passe root
-      MYSQL_DATABASE: backlog_db           # base créée automatiquement
-      MYSQL_USER: backlog_user             # user standard
-      MYSQL_PASSWORD: backlog_pass         # mot de passe de l'user
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: backlog_db
+      MYSQL_USER: backlog_user
+      MYSQL_PASSWORD: backlog_pass
     ports:
       - "3306:3306"
     volumes:
-      - ./data:/var/lib/mysql             # persistance des données
+      - ./data:/var/lib/mysql
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     command: --default-authentication-plugin=mysql_native_password
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin_backlog
+    restart: always
+    ports:
+      - "8080:80"
+    environment:
+      PMA_HOST: mysql
+      PMA_USER: backlog_user
+      PMA_PASSWORD: backlog_pass

@@ -2,12 +2,14 @@ CREATE DATABASE IF NOT EXISTS backlog_db;
 USE backlog_db;
 
 -- ----------------------------------------------------------
--- Script MySQL pour le backlog complet
+-- Script MySQL pour le backlog complet (ordre correct)
 -- ----------------------------------------------------------
 
 -- ----------------------------
--- Table: badge
+-- Tables indépendantes (pas de FK vers d'autres tables)
 -- ----------------------------
+
+-- Badge
 CREATE TABLE badge (
   id_badge INT NOT NULL AUTO_INCREMENT,
   nom VARCHAR(255) NOT NULL,
@@ -15,9 +17,7 @@ CREATE TABLE badge (
   PRIMARY KEY (id_badge)
 ) ENGINE=InnoDB;
 
--- ----------------------------
--- Table: parrainage
--- ----------------------------
+-- Parrainage
 CREATE TABLE parrainage (
   id_parrainage INT NOT NULL AUTO_INCREMENT,
   code VARCHAR(255) NOT NULL,
@@ -25,9 +25,7 @@ CREATE TABLE parrainage (
   PRIMARY KEY (id_parrainage)
 ) ENGINE=InnoDB;
 
--- ----------------------------
--- Table: plage_a_collecter
--- ----------------------------
+-- Plage
 CREATE TABLE plage_a_collecter (
   id_plage INT NOT NULL AUTO_INCREMENT,
   nom VARCHAR(255),
@@ -37,36 +35,7 @@ CREATE TABLE plage_a_collecter (
   PRIMARY KEY (id_plage)
 ) ENGINE=InnoDB;
 
--- ----------------------------
--- Table: evenement
--- ----------------------------
-CREATE TABLE evenement (
-  id_event INT NOT NULL AUTO_INCREMENT,
-  titre VARCHAR(255) NOT NULL,
-  description TEXT,
-  date_deb DATETIME NOT NULL,
-  date_fin DATETIME NOT NULL,
-  dechet_collecte INT DEFAULT 0,
-  status TINYINT NOT NULL DEFAULT 1 COMMENT '0=fermé,1=ouvert',
-  creator_id INT NOT NULL,
-  PRIMARY KEY (id_event),
-  FOREIGN KEY (creator_id) REFERENCES user(id_user) ON DELETE CASCADE
-) ENGINE=InnoDB;
-
--- ----------------------------
--- Table: se_deroule (plage ↔ événement)
--- ----------------------------
-CREATE TABLE se_deroule (
-  id_plage INT NOT NULL,
-  id_event INT NOT NULL,
-  PRIMARY KEY (id_plage, id_event),
-  FOREIGN KEY (id_plage) REFERENCES plage_a_collecter(id_plage) ON DELETE CASCADE,
-  FOREIGN KEY (id_event) REFERENCES evenement(id_event) ON DELETE CASCADE
-) ENGINE=InnoDB;
-
--- ----------------------------
--- Table: user
--- ----------------------------
+-- User (doit être avant evenement)
 CREATE TABLE user (
   id_user INT NOT NULL AUTO_INCREMENT,
   mail VARCHAR(255) NOT NULL UNIQUE,
@@ -82,9 +51,33 @@ CREATE TABLE user (
   FOREIGN KEY (id_parrainage) REFERENCES parrainage(id_parrainage) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
+-- Commune
+CREATE TABLE commune (
+  id_commune INT NOT NULL AUTO_INCREMENT,
+  nom_commune VARCHAR(255) NOT NULL,
+  PRIMARY KEY (id_commune)
+) ENGINE=InnoDB;
+
+
 -- ----------------------------
--- Table: chat
+-- Tables dépendantes (FK vers user, evenement, badge)
 -- ----------------------------
+
+-- Evenement (dépend de user)
+CREATE TABLE evenement (
+  id_event INT NOT NULL AUTO_INCREMENT,
+  titre VARCHAR(255) NOT NULL,
+  description TEXT,
+  date_deb DATETIME NOT NULL,
+  date_fin DATETIME NOT NULL,
+  dechet_collecte INT DEFAULT 0,
+  status TINYINT NOT NULL DEFAULT 1 COMMENT '0=fermé,1=ouvert',
+  creator_id INT NOT NULL,
+  PRIMARY KEY (id_event),
+  FOREIGN KEY (creator_id) REFERENCES user(id_user) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- Chat (dépend de evenement)
 CREATE TABLE chat (
   id_chat INT NOT NULL AUTO_INCREMENT,
   type VARCHAR(50) NOT NULL COMMENT 'global ou event',
@@ -93,9 +86,7 @@ CREATE TABLE chat (
   FOREIGN KEY (id_event) REFERENCES evenement(id_event) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
--- ----------------------------
--- Table: message
--- ----------------------------
+-- Message (dépend de chat et user)
 CREATE TABLE message (
   id_message INT NOT NULL AUTO_INCREMENT,
   chat_id INT NOT NULL,
@@ -107,9 +98,16 @@ CREATE TABLE message (
   FOREIGN KEY (id_user) REFERENCES user(id_user) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
--- ----------------------------
--- Table: participe (user ↔ événement)
--- ----------------------------
+-- Se_deroule (plage ↔ evenement)
+CREATE TABLE se_deroule (
+  id_plage INT NOT NULL,
+  id_event INT NOT NULL,
+  PRIMARY KEY (id_plage, id_event),
+  FOREIGN KEY (id_plage) REFERENCES plage_a_collecter(id_plage) ON DELETE CASCADE,
+  FOREIGN KEY (id_event) REFERENCES evenement(id_event) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- Participe (user ↔ evenement)
 CREATE TABLE participe (
   id_event INT NOT NULL,
   id_user INT NOT NULL,
@@ -119,9 +117,7 @@ CREATE TABLE participe (
   FOREIGN KEY (id_user) REFERENCES user(id_user) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
--- ----------------------------
--- Table: obtient (user ↔ badge)
--- ----------------------------
+-- Obtient (user ↔ badge)
 CREATE TABLE obtient (
   id_user INT NOT NULL,
   id_badge INT NOT NULL,
@@ -131,18 +127,7 @@ CREATE TABLE obtient (
   FOREIGN KEY (id_badge) REFERENCES badge(id_badge) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
--- ----------------------------
--- Table: commune
--- ----------------------------
-CREATE TABLE commune (
-  id_commune INT NOT NULL AUTO_INCREMENT,
-  nom_commune VARCHAR(255) NOT NULL,
-  PRIMARY KEY (id_commune)
-) ENGINE=InnoDB;
-
--- ----------------------------
--- Table: user_commune (association user ↔ commune)
--- ----------------------------
+-- User_commune (association user ↔ commune)
 CREATE TABLE user_commune (
   id_user INT NOT NULL,
   id_commune INT NOT NULL,
@@ -151,9 +136,7 @@ CREATE TABLE user_commune (
   FOREIGN KEY (id_commune) REFERENCES commune(id_commune) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
--- ----------------------------
--- Table: historique_participation
--- ----------------------------
+-- Historique_participation (user ↔ evenement)
 CREATE TABLE historique_participation (
   id_historique INT NOT NULL AUTO_INCREMENT,
   id_user INT NOT NULL,
@@ -165,9 +148,7 @@ CREATE TABLE historique_participation (
   FOREIGN KEY (id_event) REFERENCES evenement(id_event) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
--- ----------------------------
--- Table: photo
--- ----------------------------
+-- Photo (user ↔ evenement)
 CREATE TABLE photo (
   id_photo INT NOT NULL AUTO_INCREMENT,
   id_event INT NOT NULL,
