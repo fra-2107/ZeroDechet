@@ -1,14 +1,12 @@
+-- ----------------------------------------------------------
+-- Création de la base et des tables
+-- ----------------------------------------------------------
 CREATE DATABASE IF NOT EXISTS backlog_db;
 USE backlog_db;
 
--- ----------------------------------------------------------
--- Script MySQL pour le backlog complet (ordre correct)
--- ----------------------------------------------------------
-
 -- ----------------------------
--- Tables indépendantes (pas de FK vers d'autres tables)
+-- Tables indépendantes
 -- ----------------------------
-
 -- Badge
 CREATE TABLE badge (
   id_badge INT NOT NULL AUTO_INCREMENT,
@@ -35,7 +33,7 @@ CREATE TABLE plage_a_collecter (
   PRIMARY KEY (id_plage)
 ) ENGINE=InnoDB;
 
--- User (doit être avant evenement)
+-- User
 CREATE TABLE user (
   id_user INT NOT NULL AUTO_INCREMENT,
   mail VARCHAR(255) NOT NULL UNIQUE,
@@ -58,12 +56,10 @@ CREATE TABLE commune (
   PRIMARY KEY (id_commune)
 ) ENGINE=InnoDB;
 
-
 -- ----------------------------
--- Tables dépendantes (FK vers user, evenement, badge)
+-- Tables dépendantes
 -- ----------------------------
-
--- Evenement (dépend de user)
+-- Evenement
 CREATE TABLE evenement (
   id_event INT NOT NULL AUTO_INCREMENT,
   titre VARCHAR(255) NOT NULL,
@@ -77,7 +73,7 @@ CREATE TABLE evenement (
   FOREIGN KEY (creator_id) REFERENCES user(id_user) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
--- Chat (dépend de evenement)
+-- Chat
 CREATE TABLE chat (
   id_chat INT NOT NULL AUTO_INCREMENT,
   type VARCHAR(50) NOT NULL COMMENT 'global ou event',
@@ -86,7 +82,7 @@ CREATE TABLE chat (
   FOREIGN KEY (id_event) REFERENCES evenement(id_event) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
--- Message (dépend de chat et user)
+-- Message
 CREATE TABLE message (
   id_message INT NOT NULL AUTO_INCREMENT,
   chat_id INT NOT NULL,
@@ -98,7 +94,7 @@ CREATE TABLE message (
   FOREIGN KEY (id_user) REFERENCES user(id_user) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
--- Se_deroule (plage ↔ evenement)
+-- Se_deroule
 CREATE TABLE se_deroule (
   id_plage INT NOT NULL,
   id_event INT NOT NULL,
@@ -107,7 +103,7 @@ CREATE TABLE se_deroule (
   FOREIGN KEY (id_event) REFERENCES evenement(id_event) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
--- Participe (user ↔ evenement)
+-- Participe
 CREATE TABLE participe (
   id_event INT NOT NULL,
   id_user INT NOT NULL,
@@ -117,7 +113,7 @@ CREATE TABLE participe (
   FOREIGN KEY (id_user) REFERENCES user(id_user) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
--- Obtient (user ↔ badge)
+-- Obtient
 CREATE TABLE obtient (
   id_user INT NOT NULL,
   id_badge INT NOT NULL,
@@ -127,7 +123,7 @@ CREATE TABLE obtient (
   FOREIGN KEY (id_badge) REFERENCES badge(id_badge) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
--- User_commune (association user ↔ commune)
+-- User_commune
 CREATE TABLE user_commune (
   id_user INT NOT NULL,
   id_commune INT NOT NULL,
@@ -136,7 +132,7 @@ CREATE TABLE user_commune (
   FOREIGN KEY (id_commune) REFERENCES commune(id_commune) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
--- Historique_participation (user ↔ evenement)
+-- Historique_participation
 CREATE TABLE historique_participation (
   id_historique INT NOT NULL AUTO_INCREMENT,
   id_user INT NOT NULL,
@@ -148,7 +144,7 @@ CREATE TABLE historique_participation (
   FOREIGN KEY (id_event) REFERENCES evenement(id_event) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
--- Photo (user ↔ evenement)
+-- Photo
 CREATE TABLE photo (
   id_photo INT NOT NULL AUTO_INCREMENT,
   id_event INT NOT NULL,
@@ -160,3 +156,102 @@ CREATE TABLE photo (
   FOREIGN KEY (id_event) REFERENCES evenement(id_event) ON DELETE CASCADE,
   FOREIGN KEY (id_user) REFERENCES user(id_user) ON DELETE CASCADE
 ) ENGINE=InnoDB;
+
+-- ----------------------------------------------------------
+-- Remplissage des données
+-- ----------------------------------------------------------
+USE backlog_db;
+
+-- Communes
+INSERT INTO commune (nom_commune) VALUES
+('Brest'),
+('Plouzané'),
+('Guipavas'),
+('Le Relecq-Kerhuon'),
+('Plougastel-Daoulas');
+
+-- Badges
+INSERT INTO badge (nom, description) VALUES
+('Premier ramassage', 'Participation à un premier événement'),
+('Héros des plages', 'Plus de 100kg de déchets collectés'),
+('Ambassadeur', 'A parrainé 5 utilisateurs'),
+('Fidèle', 'Participation à 10 événements');
+
+-- Parrainage
+INSERT INTO parrainage (code) VALUES
+('BREST-CLEAN-001'),
+('OCEAN-029'),
+('PLAGE-VERTE');
+
+-- Plages à collecter
+INSERT INTO plage_a_collecter (nom, lat, lng, status) VALUES
+('Plage du Moulin Blanc', 48.3904, -4.4267, 0),
+('Plage de Sainte-Anne-du-Portzic', 48.3646, -4.5672, 1),
+('Plage du Trez-Hir', 48.3525, -4.6170, 2),
+('Plage de Porz Pabu', 48.3459, -4.6383, 0),
+('Plage du Douvez', 48.3561, -4.5854, 0);
+
+-- Utilisateurs
+INSERT INTO user (mail, nom, prenom, hash_mdp, date_naissance, niveau, nb_collecte, nb_user_parraine, id_parrainage)
+VALUES
+('alice@brest.fr', 'Le Guen', 'Alice', 'hash123', '1995-04-12', 3, 5, 1, 1),
+('bob@brest.fr', 'Martin', 'Bob', 'hash456', '1990-09-21', 2, 3, 0, NULL),
+('charles@brest.fr', 'Durand', 'Charles', 'hash789', '1985-02-03', 5, 12, 2, 2),
+('diane@brest.fr', 'Kerjean', 'Diane', 'hashabc', '2000-11-15', 1, 1, 0, NULL),
+('eric@brest.fr', 'Le Roux', 'Eric', 'hashdef', '1992-06-30', 4, 8, 3, 3);
+
+-- Association utilisateurs ↔ communes
+INSERT INTO user_commune (id_user, id_commune) VALUES
+(1, 1),
+(2, 1),
+(3, 3),
+(4, 2),
+(5, 5);
+
+-- Événements
+INSERT INTO evenement (titre, description, date_deb, date_fin, dechet_collecte, status, creator_id)
+VALUES
+('Nettoyage du Moulin Blanc','Ramassage de déchets sur la plage du Moulin Blanc','2025-03-15 09:00:00','2025-03-15 12:00:00',85,0,1),
+('Opération Portzic propre','Action citoyenne pour préserver le littoral','2025-04-10 10:00:00','2025-04-10 13:00:00',0,1,3),
+('Ramassage Trez-Hir','Nettoyage de printemps au Trez-Hir','2025-05-05 14:00:00','2025-05-05 17:00:00',120,0,2);
+
+-- Lieux des événements
+INSERT INTO se_deroule (id_plage, id_event) VALUES
+(1, 1),
+(2, 2),
+(3, 3);
+
+-- Participation
+INSERT INTO participe (id_event, id_user) VALUES
+(1, 1),(1, 2),(1, 4),
+(2, 1),(2, 3),(2, 5),
+(3, 2),(3, 3),(3, 5);
+
+-- Historique de participation
+INSERT INTO historique_participation (id_user, id_event, impact) VALUES
+(1, 1, 30),(2, 1, 20),(4, 1, 15),
+(1, 2, 25),(3, 2, 40),(5, 2, 35),
+(2, 3, 50),(3, 3, 40),(5, 3, 30);
+
+-- Chats
+INSERT INTO chat (type, id_event) VALUES
+('global', NULL),('event', 1),('event', 2),('event', 3);
+
+-- Messages
+INSERT INTO message (chat_id, id_user, contenu) VALUES
+(1, 1, 'Bienvenue sur le chat global Brest Clean 🌊'),
+(1, 3, 'Merci à tous pour votre engagement !'),
+(2, 2, 'Rendez-vous à 9h devant le parking du Moulin Blanc'),
+(3, 5, 'Pensez à apporter des gants'),
+(4, 3, 'Très belle collecte aujourd’hui 👏');
+
+-- Badges obtenus
+INSERT INTO obtient (id_user, id_badge) VALUES
+(1, 1),(1, 4),(2, 1),(3, 1),(3, 2),(5, 3);
+
+-- Photos
+INSERT INTO photo (id_event, id_user, type, file_path) VALUES
+(1, 1, 'avant', '/photos/moulin_blanc_avant.jpg'),
+(1, 1, 'apres', '/photos/moulin_blanc_apres.jpg'),
+(3, 3, 'avant', '/photos/trez_hir_avant.jpg'),
+(3, 3, 'apres', '/photos/trez_hir_apres.jpg');

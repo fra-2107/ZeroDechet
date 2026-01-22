@@ -4,7 +4,7 @@
 
 - Docker
 - Docker Compose
-- projet git cloné
+- cloner le projet git
 
 ## 1. Accès au bon dossier
 ```bash
@@ -29,7 +29,7 @@ Une fois le conteneur lancé, ouvrez votre navigateur et allez à:
 http://localhost:4200
 ```
 
-compe de test :
+compte de test :
 - utilisateur : alice@brest.fr
 - mot de passe : hash123
 
