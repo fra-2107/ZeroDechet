@@ -3,49 +3,209 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Clean Coast - Protection des côtes bretonnes</title>
+    <title>Connexion - Clean Coast</title>
     
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     
-    <!-- Leaflet CSS pour la carte -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    
-    <!-- Styles CSS -->
-    <link rel="stylesheet" href="styles.css">
+    <style>
+        :root {
+            --ocean-blue: #0A4F70;
+            --algae-green: #3FA796;
+            --sand-light: #F2EFEA;
+            --slate-grey: #2E2E2E;
+            --border-color: rgba(46, 46, 46, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background-color: var(--sand-light);
+            color: var(--slate-grey);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-container {
+            background: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 2rem;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .login-header h1 {
+            font-family: 'Montserrat', sans-serif;
+            color: var(--ocean-blue);
+            margin-bottom: 0.5rem;
+        }
+
+        .login-header p {
+            color: #6b6b6b;
+            font-size: 0.875rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--ocean-blue);
+            box-shadow: 0 0 0 3px rgba(10, 79, 112, 0.1);
+        }
+
+        .login-btn {
+            width: 100%;
+            background-color: var(--ocean-blue);
+            color: white;
+            border: none;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .login-btn:hover {
+            background-color: #063a4f;
+        }
+
+        .register-btn {
+            width: 100%;
+            background-color: transparent;
+            color: var(--ocean-blue);
+            border: 2px solid var(--ocean-blue);
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 1rem;
+        }
+
+        .register-btn:hover {
+            background-color: var(--ocean-blue);
+            color: white;
+        }
+
+        .error-message {
+            color: #dc2626;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+    </style>
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="navbar">
-        <div class="nav-content">
-            <a href="#" class="logo" onclick="showPage('dashboard')">
-                Clean Coast
-            </a>
-            <ul class="nav-links">
-                <li><a href="#" onclick="showPage('dashboard')" class="active" id="nav-dashboard">Tableau de bord</a></li>
-                <li><a href="#" onclick="showPage('events')" id="nav-events">Événements</a></li>
-                <li><a href="#" onclick="showPage('map')" id="nav-map">Carte</a></li>
-                <li><a href="#" onclick="showPage('stats')" id="nav-stats">Statistiques</a></li>
-                <li><a href="#" onclick="showPage('history')" id="nav-history">Historique</a></li>
-                <li><a href="#" onclick="showPage('profile')" id="nav-profile">Profil</a></li>
-                <li><a href="#" id="nav-login" onclick="handleAuth()">Connexion</a></li>
-            </ul>
+    <div class="login-container">
+        <div class="login-header">
+            <h1>Connexion</h1>
+            <p>Connectez-vous à votre compte Clean Coast</p>
+            <p style="font-size: 0.8rem; color: #6b6b6b; margin-top: 0.5rem;">
+                Connectez-vous avec votre compte ou créez-en un nouveau
+            </p>
         </div>
-    </nav>
-
-    <div class="container">
-        <!-- Page content will be loaded here dynamically -->
-        <div id="page-content">
-            <div style="padding: 2rem; text-align: center;">
-                <p>Chargement...</p>
+        
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required>
             </div>
-        </div>
+            
+            <div class="form-group">
+                <label for="password">Mot de passe</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            
+            <button type="submit" class="login-btn">Se connecter</button>
+            
+            <button type="button" class="register-btn" onclick="window.location.href='pages/register.html'">Créer un compte</button>
+            
+            <div id="errorMessage" class="error-message">
+                Email ou mot de passe incorrect
+            </div>
+        </form>
     </div>
 
-    <!-- Leaflet JS -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    
-    <!-- JavaScript -->
-    <script src="script.js"></script>
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            // Reset error message
+            document.getElementById('errorMessage').style.display = 'none';
+            
+            try {
+                // Appel à l'API pour vérifier les identifiants
+                const response = await fetch('http://localhost:3000/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                if (response.ok) {
+                    const userData = await response.json();
+                    
+                    // Stocker les informations utilisateur dans localStorage
+                    localStorage.setItem('isLoggedIn', 'true');
+                    localStorage.setItem('userId', userData.id);
+                    localStorage.setItem('userEmail', userData.email);
+                    localStorage.setItem('userName', `${userData.prenom} ${userData.nom}`);
+                    localStorage.setItem('userNom', userData.nom);
+                    localStorage.setItem('userPrenom', userData.prenom);
+                    localStorage.setItem('userDateNaissance', userData.dateNaissance || '');
+                    localStorage.setItem('userNiveau', userData.niveau);
+                    localStorage.setItem('userNbCollecte', userData.nbCollecte);
+                    localStorage.setItem('userNbUserParraine', userData.nbUserParraine);
+                    
+                    // Rediriger vers l'application principale
+                    window.location.href = 'app.html';
+                } else {
+                    const error = await response.json();
+                    document.getElementById('errorMessage').textContent = error.error || 'Email ou mot de passe incorrect';
+                    document.getElementById('errorMessage').style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Erreur de connexion:', error);
+                document.getElementById('errorMessage').textContent = 'Erreur de connexion au serveur';
+                document.getElementById('errorMessage').style.display = 'block';
+            }
+        });
+    </script>
 </body>
 </html>

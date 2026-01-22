@@ -194,10 +194,10 @@ function handleAuth() {
             markers = { events: [], beaches: [], bins: [] };
         }
         // Redirect to login page
-        window.location.href = 'pages/login.html';
+        window.location.href = 'index.html';
     } else {
         // Redirect to login page
-        window.location.href = 'pages/login.html';
+        window.location.href = 'index.html';
     }
 }
 
@@ -294,48 +294,68 @@ function showPage(pageName) {
                     const eventForm = document.getElementById('eventForm');
                     if (eventForm && !eventForm.dataset.listenerAttached) {
                         eventForm.dataset.listenerAttached = 'true';
-                        eventForm.addEventListener('submit', function(e) {
+                        eventForm.addEventListener('submit', async function(e) {
                             e.preventDefault();
+                            
+                            // Vérifier que l'utilisateur est connecté
+                            const userId = localStorage.getItem('userId');
+                            if (!userId) {
+                                alert('Vous devez être connecté pour créer un événement');
+                                showPage('login');
+                                return;
+                            }
                             
                             // Get form values
                             const title = document.getElementById('eventTitle').value;
                             const type = document.getElementById('eventType').value;
                             const date = document.getElementById('eventDate').value;
                             const location = document.getElementById('eventLocation').value;
-                            const maxParticipants = document.getElementById('eventMaxParticipants').value;
+                            const description = document.getElementById('eventDescription').value;
                             
-                            // Create new event
-                            const newEvent = {
-                                id: 'e' + (mockEvents.length + 1),
-                                title: title,
-                                date: date,
-                                location: location,
-                                coordinates: config.defaultCoordinates || [48.3733, -4.4180],
-                                participants: 0,
-                                wasteCollected: 0,
-                                status: 'upcoming',
-                                type: type
-                            };
-                            
-                            // Add to mockEvents array
-                            mockEvents.push(newEvent);
-                            
-                            // Save custom events to localStorage
-                            saveCustomEvents();
-                            
-                            // Update map if it exists
-                            if (map) {
-                                updateMapMarkers();
+                            try {
+                                // Appel à l'API pour créer l'événement
+                                const response = await fetch(`${API_BASE_URL}/events`, {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json'
+                                    },
+                                    body: JSON.stringify({
+                                        title: title,
+                                        description: description,
+                                        date: date,
+                                        location: location,
+                                        type: type,
+                                        creatorId: parseInt(userId)
+                                    })
+                                });
+                                
+                                if (response.ok) {
+                                    const result = await response.json();
+                                    
+                                    // Recharger les événements depuis l'API
+                                    await loadData();
+                                    
+                                    // Update map if it exists
+                                    if (map) {
+                                        updateMapMarkers();
+                                    }
+                                    
+                                    // Reset form
+                                    eventForm.reset();
+                                    
+                                    // Show success message
+                                    alert('Événement créé avec succès !');
+                                    
+                                    // Redirect to dashboard and refresh the events list
+                                    showPage('dashboard');
+                                } else {
+                                    const error = await response.json();
+                                    alert('Erreur lors de la création de l\'événement: ' + (error.error || 'Erreur inconnue'));
+                                }
+                            } catch (error) {
+                                console.error('Error creating event:', error);
+                                alert('Erreur de connexion au serveur');
                             }
-                            
-                            // Reset form
-                            eventForm.reset();
-                            
-                            // Show success message
-                            alert('Événement créé avec succès !');
-                            
-                            // Redirect to dashboard and refresh the events list
-                            showPage('dashboard');
                         });
                     }
                 }
@@ -678,6 +698,7 @@ async function renderStatsData() {
 
 // Render profile data
 async function renderProfileData() {
+    console.log('renderProfileData called');
     const initialsEl = document.getElementById('profileInitials');
     const nameEl = document.getElementById('profileName');
     const emailEl = document.getElementById('profileEmail');
@@ -691,6 +712,21 @@ async function renderProfileData() {
     const badgesEl = document.getElementById('profileBadges');
     const badgesGridEl = document.getElementById('badgesGrid');
     
+    console.log('Profile DOM elements found:', {
+        initialsEl: !!initialsEl,
+        nameEl: !!nameEl,
+        emailEl: !!emailEl,
+        memberSinceEl: !!memberSinceEl,
+        levelEl: !!levelEl,
+        levelProgressEl: !!levelProgressEl,
+        progressBarEl: !!progressBarEl,
+        wasteInfoEl: !!wasteInfoEl,
+        wasteEl: !!wasteEl,
+        eventsEl: !!eventsEl,
+        badgesEl: !!badgesEl,
+        badgesGridEl: !!badgesGridEl
+    });
+    
     // Vérifier si l'utilisateur est connecté
     const userId = localStorage.getItem('userId');
     let userData = null;
@@ -698,22 +734,34 @@ async function renderProfileData() {
     // Charger les données depuis l'API si l'utilisateur est connecté
     if (userId && isLoggedIn()) {
         try {
+            console.log(`Fetching user data for userId: ${userId}`);
             const response = await fetch(`${API_BASE_URL}/user/${userId}`);
+            console.log(`User API response status: ${response.status}`);
+            
             if (response.ok) {
                 userData = await response.json();
                 console.log('User data loaded from API:', userData);
                 
                 // Mettre à jour localStorage avec les données fraîches
-                localStorage.setItem('userEmail', userData.email);
-                localStorage.setItem('userName', `${userData.prenom} ${userData.nom}`);
-                localStorage.setItem('userNom', userData.nom);
-                localStorage.setItem('userPrenom', userData.prenom);
-                localStorage.setItem('userNiveau', userData.niveau);
-                localStorage.setItem('userNbCollecte', userData.nbCollecte);
+                if (userData.email) localStorage.setItem('userEmail', userData.email);
+                if (userData.prenom && userData.nom) {
+                    localStorage.setItem('userName', `${userData.prenom} ${userData.nom}`);
+                    localStorage.setItem('userNom', userData.nom);
+                    localStorage.setItem('userPrenom', userData.prenom);
+                }
+                if (userData.niveau !== undefined) localStorage.setItem('userNiveau', userData.niveau);
+                if (userData.nbCollecte !== undefined) localStorage.setItem('userNbCollecte', userData.nbCollecte);
+            } else {
+                const errorData = await response.json().catch(() => ({}));
+                console.warn('Failed to load user data from API:', response.status, errorData);
+                // Continuer avec les données du localStorage
             }
         } catch (error) {
             console.error('Error loading user data:', error);
+            // Continuer avec les données du localStorage
         }
+    } else {
+        console.log('User not logged in or userId missing. userId:', userId, 'isLoggedIn:', isLoggedIn());
     }
     
     // Get user data from localStorage (from registration/login)
@@ -950,6 +998,15 @@ function updateMapMarkers() {
 document.addEventListener('DOMContentLoaded', async function() {
     console.log('DOM loaded, initializing application...');
     
+    // Vérifier si on est sur app.html et si l'utilisateur est connecté
+    if (window.location.pathname.includes('app.html')) {
+        if (!isLoggedIn()) {
+            console.log('User not logged in, redirecting to login...');
+            window.location.href = 'index.html';
+            return;
+        }
+    }
+    
     try {
         // Load data from API (Database)
         console.log('Loading data from API...');
@@ -959,10 +1016,12 @@ document.addEventListener('DOMContentLoaded', async function() {
         // Check login status on page load
         updateAuthUI();
 
-        // Load default page (dashboard)
-        console.log('Loading dashboard page...');
-        showPage('dashboard');
-        console.log('Application initialized successfully');
+        // Charger le dashboard par défaut si on est sur app.html
+        if (window.location.pathname.includes('app.html')) {
+            console.log('Loading dashboard page...');
+            showPage('dashboard');
+            console.log('Application initialized successfully');
+        }
     } catch (error) {
         console.error('Error initializing application:', error);
         console.error('Error stack:', error.stack);

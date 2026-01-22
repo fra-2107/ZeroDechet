@@ -179,7 +179,7 @@
     </div>
 
     <script>
-        document.getElementById('registerForm').addEventListener('submit', function(e) {
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
             const firstName = document.getElementById('firstName').value;
@@ -205,25 +205,42 @@
                 return;
             }
 
-            // Simple registration - in a real app, this would send data to server
-            // For demo purposes, accept any valid input and simulate success
-            document.getElementById('successMessage').style.display = 'block';
+            try {
+                // Appel à l'API pour créer le compte
+                const response = await fetch('http://localhost:3000/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        password: password,
+                        nom: lastName,
+                        prenom: firstName,
+                        dateNaissance: null // Optionnel pour l'instant
+                    })
+                });
 
-            // Simulate account creation and redirect after 2 seconds
-            setTimeout(function() {
-                // Store registration info (in real app, this would be on server)
-                const fullName = firstName + ' ' + lastName;
-                localStorage.setItem('registeredEmail', email);
-                localStorage.setItem('registeredName', fullName);
-                localStorage.setItem('registeredPassword', password); // For demo only - never do this in production
-                
-                // Also store as userName for immediate use after login
-                localStorage.setItem('userName', fullName);
-                localStorage.setItem('userEmail', email);
-                
-                // Redirect to login page
-                window.location.href = 'login.html';
-            }, 2000);
+                if (response.ok) {
+                    const userData = await response.json();
+                    
+                    // Afficher le message de succès
+                    document.getElementById('successMessage').style.display = 'block';
+                    
+                    // Rediriger vers la page de connexion après 2 secondes
+                    setTimeout(function() {
+                        window.location.href = 'login.html';
+                    }, 2000);
+                } else {
+                    const error = await response.json();
+                    document.getElementById('errorMessage').textContent = error.error || 'Erreur lors de la création du compte';
+                    document.getElementById('errorMessage').style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Erreur lors de l\'inscription:', error);
+                document.getElementById('errorMessage').textContent = 'Erreur de connexion au serveur';
+                document.getElementById('errorMessage').style.display = 'block';
+            }
         });
     </script>
 </body>
