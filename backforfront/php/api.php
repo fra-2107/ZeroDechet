@@ -16,7 +16,7 @@
     
     $id=$request[2];
 
-    if ($request[1] != 'user')
+    if ($request[1] == 'user')
     {
 
     if ($requestMethod == 'GET')

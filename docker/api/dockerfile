@@ -1,0 +1,13 @@
+FROM node:20
+
+WORKDIR /app
+
+# Copier uniquement package.json pour installer les dépendances
+COPY package*.json ./
+RUN npm install
+
+# Copier tout le dossier api (y compris server.js)
+COPY . .
+
+EXPOSE 3000
+CMD ["node", "server.js"]

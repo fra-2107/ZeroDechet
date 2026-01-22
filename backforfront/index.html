@@ -24,7 +24,7 @@
   'use strict';
 
   function loadUsers() {
-    ajaxRequest('GET', '/api/users', (users) => {
+    ajaxRequest('GET', '/php/api.php/users', (users) => {
       const ul = document.getElementById('users');
       ul.innerHTML = '';
       users.forEach(user => {
@@ -37,6 +37,10 @@
 
   document.getElementById('btnLoadUsers').addEventListener('click', loadUsers);
   </script>
+
+  <button onclick="fetch('/php/api.php/user').then(r => r.json()).then(d => console.log(d))">
+    Charger utilisateurs
+  </button>
 
 </body>
 </html>
