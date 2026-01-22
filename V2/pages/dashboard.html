@@ -1,0 +1,82 @@
+        <div id="dashboard" class="page active">
+            <div class="page-content">
+                <div class="page-header">
+                    <h1>Tableau de bord</h1>
+                    <p style="color: #6b6b6b;" id="welcome-message">Vue d'ensemble de votre activité</p>
+                </div>
+
+                <!-- Stats -->
+                <div class="grid grid-cols-4">
+                    <div class="stat-card">
+                        <div class="stat-label">Déchets ramassés</div>
+                        <div class="stat-value">1247 kg</div>
+                        <p style="font-size: 0.75rem; color: #6b6b6b; margin-top: 0.25rem;">+149kg ce mois</p>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Événements</div>
+                        <div class="stat-value" style="color: var(--algae-green)">28</div>
+                        <p style="font-size: 0.75rem; color: #6b6b6b; margin-top: 0.25rem;">3 à venir</p>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Participants</div>
+                        <div class="stat-value">542</div>
+                        <p style="font-size: 0.75rem; color: #6b6b6b; margin-top: 0.25rem;">Total depuis le début</p>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Plages nettoyées</div>
+                        <div class="stat-value" style="color: var(--algae-green)">12</div>
+                        <p style="font-size: 0.75rem; color: #6b6b6b; margin-top: 0.25rem;">Sur la zone couverte</p>
+                    </div>
+                </div>
+
+                <!-- Challenges -->
+                <h2>Défis en cours</h2>
+                <div class="grid grid-cols-2">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">🎯 Objectif 500kg</h3>
+                            <p class="card-description">Ramasser 500kg de déchets en février</p>
+                        </div>
+                        <div class="card-content">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                <span style="font-size: 0.875rem; color: #6b6b6b;">Progression</span>
+                                <span style="font-weight: 500;">367 / 500</span>
+                            </div>
+                            <div class="progress">
+                                <div class="progress-bar" style="width: 73.4%"></div>
+                            </div>
+                            <p style="font-size: 0.75rem; color: #6b6b6b; margin-top: 0.5rem;">
+                                Date limite: 28 février 2026
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">🎯 100 participants</h3>
+                            <p class="card-description">Réunir 100 participants sur un seul événement</p>
+                        </div>
+                        <div class="card-content">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                <span style="font-size: 0.875rem; color: #6b6b6b;">Progression</span>
+                                <span style="font-weight: 500;">42 / 100</span>
+                            </div>
+                            <div class="progress">
+                                <div class="progress-bar" style="width: 42%"></div>
+                            </div>
+                            <p style="font-size: 0.75rem; color: #6b6b6b; margin-top: 0.5rem;">
+                                Date limite: 31 mars 2026
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Upcoming Events -->
+                <div style="display: flex; justify-content: space-between; align-items: center; margin: 2rem 0 1rem;">
+                    <h2 style="margin: 0;">Prochains événements</h2>
+                    <button class="btn btn-secondary" onclick="showPage('events')">Créer un événement</button>
+                </div>
+
+                <div class="grid grid-cols-3" id="upcomingEvents"></div>
+            </div>
+        </div>

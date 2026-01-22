@@ -1,0 +1,359 @@
+:root {
+    --ocean-blue: #0A4F70;
+    --algae-green: #3FA796;
+    --sand-light: #F2EFEA;
+    --slate-grey: #2E2E2E;
+    --border-color: rgba(46, 46, 46, 0.1);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background-color: var(--sand-light);
+    color: var(--slate-grey);
+    line-height: 1.6;
+}
+
+h1, h2, h3, h4 {
+    font-family: 'Montserrat', sans-serif;
+}
+
+h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+/* Navigation */
+.navbar {
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.nav-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--ocean-blue);
+    text-decoration: none;
+}
+
+.nav-links {
+    display: flex;
+    gap: 1rem;
+    list-style: none;
+}
+
+.nav-links a {
+    color: var(--slate-grey);
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    transition: all 0.3s;
+}
+
+.nav-links a:hover, .nav-links a.active {
+    background-color: var(--ocean-blue);
+    color: white;
+}
+
+/* Cards */
+.card {
+    background: white;
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+}
+
+.card-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.card-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.card-description {
+    color: #6b6b6b;
+    font-size: 0.875rem;
+}
+
+.card-content {
+    padding: 1.5rem;
+}
+
+/* Grid */
+.grid {
+    display: grid;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.grid-cols-2 {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+.grid-cols-3 {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+
+.grid-cols-4 {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+/* Buttons */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-decoration: none;
+}
+
+.btn-primary {
+    background-color: var(--ocean-blue);
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #083d5a;
+}
+
+.btn-secondary {
+    background-color: var(--algae-green);
+    color: white;
+}
+
+.btn-secondary:hover {
+    background-color: #358874;
+}
+
+.btn-outline {
+    background-color: transparent;
+    border: 2px solid var(--ocean-blue);
+    color: var(--ocean-blue);
+}
+
+.btn-outline:hover {
+    background-color: var(--ocean-blue);
+    color: white;
+}
+
+/* Stats Cards */
+.stat-card {
+    padding: 1.5rem;
+    background: white;
+    border-radius: 0.75rem;
+    border: 2px solid transparent;
+    transition: all 0.3s;
+}
+
+.stat-card:hover {
+    border-color: var(--ocean-blue);
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--ocean-blue);
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: #6b6b6b;
+}
+
+/* Badge */
+.badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.badge-green {
+    background-color: #3FA796;
+    color: white;
+}
+
+.badge-blue {
+    background-color: var(--ocean-blue);
+    color: white;
+}
+
+/* Event Cards */
+.event-card {
+    background: white;
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    transition: all 0.3s;
+}
+
+.event-card:hover {
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+/* Map */
+#map {
+    height: 600px;
+    width: 100%;
+    border-radius: 0.75rem;
+    overflow: hidden;
+}
+
+/* Progress Bar */
+.progress {
+    width: 100%;
+    height: 0.75rem;
+    background-color: #e0e0e0;
+    border-radius: 9999px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    background-color: var(--algae-green);
+    transition: width 0.3s;
+}
+
+/* Form */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    font-size: 0.875rem;
+}
+
+.form-input, .form-select, .form-textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    font-family: inherit;
+}
+
+.form-textarea {
+    resize: vertical;
+    min-height: 120px;
+}
+
+/* Page content */
+.page-content {
+    padding: 2rem 0;
+    min-height: calc(100vh - 200px);
+}
+
+.page-header {
+    margin-bottom: 2rem;
+}
+
+/* Hide pages by default */
+.page {
+    display: none;
+}
+
+.page.active {
+    display: block;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .nav-links {
+        flex-wrap: wrap;
+    }
+
+    h1 {
+        font-size: 1.5rem;
+    }
+}
+
+/* Leaderboard */
+.leaderboard-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    background-color: var(--sand-light);
+    border-radius: 0.5rem;
+    margin-bottom: 0.75rem;
+    transition: all 0.3s;
+}
+
+.leaderboard-item:hover {
+    background-color: #e8e5e0;
+}
+
+.rank-badge {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+}
+
+.rank-1 { background-color: #FFD700; color: #2E2E2E; }
+.rank-2 { background-color: #C0C0C0; color: #2E2E2E; }
+.rank-3 { background-color: #CD7F32; color: white; }
+.rank-other { background-color: var(--ocean-blue); color: white; }
+
+/* Icon styles */
+.icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    display: inline-block;
+    vertical-align: middle;
+}

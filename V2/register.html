@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscription - Clean Coast</title>
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --ocean-blue: #0A4F70;
+            --algae-green: #3FA796;
+            --sand-light: #F2EFEA;
+            --slate-grey: #2E2E2E;
+            --border-color: rgba(46, 46, 46, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background-color: var(--sand-light);
+            color: var(--slate-grey);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .register-container {
+            background: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 2rem;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .register-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .register-header h1 {
+            font-family: 'Montserrat', sans-serif;
+            color: var(--ocean-blue);
+            margin-bottom: 0.5rem;
+        }
+
+        .register-header p {
+            color: #6b6b6b;
+            font-size: 0.875rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--ocean-blue);
+            box-shadow: 0 0 0 3px rgba(10, 79, 112, 0.1);
+        }
+
+        .register-btn {
+            width: 100%;
+            background-color: var(--algae-green);
+            color: white;
+            border: none;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .register-btn:hover {
+            background-color: #2e7d6a;
+        }
+
+        .success-message {
+            color: #16a34a;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+
+        .error-message {
+            color: #dc2626;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        .back-link a {
+            color: var(--ocean-blue);
+            text-decoration: none;
+        }
+
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="register-container">
+        <div class="register-header">
+            <h1>Inscription</h1>
+            <p>Rejoignez Clean Coast pour protéger nos côtes</p>
+        </div>
+
+        <form id="registerForm">
+            <div class="form-group">
+                <label for="firstName">Prénom</label>
+                <input type="text" id="firstName" name="firstName" required>
+            </div>
+
+            <div class="form-group">
+                <label for="lastName">Nom</label>
+                <input type="text" id="lastName" name="lastName" required>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Mot de passe</label>
+                <input type="password" id="password" name="password" required minlength="6">
+            </div>
+
+            <div class="form-group">
+                <label for="confirmPassword">Confirmer le mot de passe</label>
+                <input type="password" id="confirmPassword" name="confirmPassword" required>
+            </div>
+
+            <button type="submit" class="register-btn">S'inscrire</button>
+
+            <div id="successMessage" class="success-message">
+                Compte créé avec succès ! Redirection vers la connexion...
+            </div>
+
+            <div id="errorMessage" class="error-message">
+                Erreur lors de la création du compte
+            </div>
+        </form>
+
+        <div class="back-link">
+            <a href="login.html">Déjà un compte ? Se connecter</a>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const firstName = document.getElementById('firstName').value;
+            const lastName = document.getElementById('lastName').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            // Reset messages
+            document.getElementById('successMessage').style.display = 'none';
+            document.getElementById('errorMessage').style.display = 'none';
+
+            // Validation
+            if (password !== confirmPassword) {
+                document.getElementById('errorMessage').textContent = 'Les mots de passe ne correspondent pas';
+                document.getElementById('errorMessage').style.display = 'block';
+                return;
+            }
+
+            if (password.length < 6) {
+                document.getElementById('errorMessage').textContent = 'Le mot de passe doit contenir au moins 6 caractères';
+                document.getElementById('errorMessage').style.display = 'block';
+                return;
+            }
+
+            // Simple registration - in a real app, this would send data to server
+            // For demo purposes, accept any valid input and simulate success
+            document.getElementById('successMessage').style.display = 'block';
+
+            // Simulate account creation and redirect after 2 seconds
+            setTimeout(function() {
+                // Store registration info (in real app, this would be on server)
+                localStorage.setItem('registeredEmail', email);
+                localStorage.setItem('registeredName', firstName + ' ' + lastName);
+                localStorage.setItem('registeredPassword', password); // For demo only - never do this in production
+                
+                // Redirect to login page
+                window.location.href = 'login.html';
+            }, 2000);
+        });
+    </script>
+</body>
+</html>

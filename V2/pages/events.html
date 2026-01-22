@@ -1,0 +1,73 @@
+        <div id="events" class="page">
+            <div class="page-content">
+                <div class="page-header">
+                    <h1>Créer un nouvel événement</h1>
+                    <p style="color: #6b6b6b;">Organisez un ramassage de déchets et mobilisez la communauté</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Informations de l'événement</h3>
+                        <p class="card-description">Remplissez les détails de votre événement de ramassage</p>
+                    </div>
+                    <div class="card-content">
+                        <form id="eventForm">
+                            <div class="form-group">
+                                <label class="form-label">Titre de l'événement *</label>
+                                <input type="text" class="form-input" placeholder="Ex: Grand nettoyage de la plage..." required>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Type d'événement *</label>
+                                <select class="form-select" required>
+                                    <option value="beach">🏖️ Plage</option>
+                                    <option value="coastal">🌊 Côtier</option>
+                                    <option value="underwater">🤿 Plongée sous-marine</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Date de l'événement *</label>
+                                <input type="date" class="form-input" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Lieu de rendez-vous *</label>
+                                <input type="text" class="form-input" placeholder="Ex: Plage du Moulin Blanc, Brest" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Nombre maximum de participants</label>
+                                <input type="number" class="form-input" placeholder="Ex: 50">
+                                <p style="font-size: 0.75rem; color: #6b6b6b; margin-top: 0.25rem;">
+                                    Laissez vide si pas de limite
+                                </p>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Description</label>
+                                <textarea class="form-textarea" placeholder="Décrivez votre événement, le matériel fourni, les consignes..."></textarea>
+                            </div>
+
+                            <div style="display: flex; gap: 1rem;">
+                                <button type="submit" class="btn btn-secondary" style="flex: 1;">Créer l'événement</button>
+                                <button type="button" class="btn btn-outline" style="flex: 1;" onclick="showPage('dashboard')">Annuler</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="card" style="background-color: var(--sand-light); border: 2px solid rgba(10, 79, 112, 0.2);">
+                    <div class="card-header">
+                        <h3 class="card-title">💡 Conseils pour un événement réussi</h3>
+                    </div>
+                    <div class="card-content" style="font-size: 0.875rem;">
+                        <p>• Prévoyez du matériel : gants, sacs poubelles, pinces</p>
+                        <p>• Identifiez les points de collecte à proximité</p>
+                        <p>• Communiquez les consignes de sécurité</p>
+                        <p>• Pensez à prendre des photos avant/après</p>
+                        <p>• Partagez l'événement sur les réseaux sociaux</p>
+                    </div>
+                </div>
+            </div>
+        </div>
